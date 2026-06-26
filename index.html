@@ -1,0 +1,2455 @@
+<html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Performance | D.finefit &amp; Nova Fit 2026</title>
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🏋️&lt;/text&gt;&lt;/svg&gt;">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base:#0a0a0f; --bg-card:#111118; --bg-card2:#16161f;
+    --border:rgba(255,255,255,0.07); --text:#e8e8f0; --text-muted:#6b6b80; --text-dim:#9090a8;
+    --df:#F97316; --df-glow:rgba(249,115,22,0.15); --df-glow2:rgba(249,115,22,0.08);
+    --nf:#A855F7; --nf-glow:rgba(168,85,247,0.15); --nf-glow2:rgba(168,85,247,0.08);
+    --green:#22C55E; --red:#EF4444; --yellow:#EAB308;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg-base);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;}
+
+  /* LOGIN */
+  #loginOverlay{position:fixed;inset:0;background:var(--bg-base);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+  .login-box{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:40px 44px;width:360px;text-align:center;}
+  .login-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;}
+  .login-logo .dot{width:10px;height:10px;border-radius:50%;}
+  .login-logo .dot.df{background:var(--df);} .login-logo .dot.nf{background:var(--nf);}
+  .login-box h2{font-size:18px;font-weight:600;margin-bottom:6px;}
+  .login-box p{color:var(--text-muted);font-size:13px;margin-bottom:24px;}
+  .login-field{background:var(--bg-base);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;margin-bottom:12px;outline:none;transition:border-color .2s;}
+  .login-field:focus{border-color:rgba(255,255,255,0.2);}
+  .login-btn{width:100%;background:linear-gradient(135deg,var(--df),var(--nf));color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:8px;padding:12px;cursor:pointer;transition:opacity .2s;margin-top:4px;}
+  .login-btn:hover{opacity:.88;}
+  .login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px;}
+  .login-credit{color:var(--text-muted);font-size:11px;margin-top:20px;}
+
+  /* LAYOUT */
+  #app{display:flex;min-height:100vh;}
+  .sidebar{width:220px;min-width:220px;background:var(--bg-card);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+  .sidebar-brand{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+  .sidebar-brand span{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+  .sidebar-brand strong{font-size:15px;font-weight:700;display:block;}
+  .nav-section{padding:0 12px;margin-bottom:6px;}
+  .nav-label{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);padding:0 8px;margin-bottom:4px;margin-top:14px;display:block;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text-dim);font-size:13.5px;font-weight:500;transition:all .18s;margin-bottom:1px;}
+  .nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+  .nav-item.active{color:var(--text);background:rgba(255,255,255,0.06);}
+  .nav-item.active.df{color:var(--df);background:var(--df-glow2);}
+  .nav-item.active.nf{color:var(--nf);background:var(--nf-glow2);}
+  .nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .nav-dot.df{background:var(--df);} .nav-dot.nf{background:var(--nf);}
+  .nav-dot.geral{background:linear-gradient(135deg,var(--df),var(--nf));}
+  .nav-dot.admin{background:var(--text-muted);}
+  .sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border);}
+  .sidebar-footer span{display:block;font-size:11px;color:var(--text-muted);}
+  .main{margin-left:220px;flex:1;padding:32px 36px;max-width:1240px;}
+
+  /* TOPBAR */
+  .topbar{display:flex;align-items:center;margin-bottom:32px;}
+  .topbar h1{font-size:22px;font-weight:700;}
+  .topbar p{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+  /* TABS admin */
+  .tabs{display:flex;gap:4px;margin-bottom:28px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content;}
+  .tab{padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .18s;}
+  .tab:hover{color:var(--text);} .tab.active{background:var(--bg-card2);color:var(--text);}
+
+  /* KPI CARDS */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:28px;}
+  .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi-card.df::before{background:var(--df);} .kpi-card.nf::before{background:var(--nf);}
+  .kpi-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+  .kpi-value{font-size:24px;font-weight:700;font-family:'DM Mono',monospace;letter-spacing:-.02em;line-height:1;}
+  .kpi-sub{font-size:12px;color:var(--text-muted);margin-top:6px;}
+
+  /* GERAL NETWORK CARDS — layout vertical para não cortar */
+  .network-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+  .net-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .net-card-header{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);border-top:3px solid transparent;overflow:hidden;}
+  .net-card-header.df{border-top-color:#F97316;}
+  .net-card-header.nf{border-top-color:#A855F7;}
+  .net-logo-wrap{display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .net-logo-wrap.df{} .net-logo-wrap.nf{}
+  .net-logo-text{display:flex;flex-direction:column;justify-content:center;}
+  .brand-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+  .brand-icon.df{background:var(--df-glow);color:var(--df);}
+  .brand-icon.nf{background:var(--nf-glow);color:var(--nf);}
+  .brand-name{font-size:15px;font-weight:700;}
+  .brand-name.df{color:var(--df);} .brand-name.nf{color:var(--nf);}
+  .brand-sub{font-size:11px;color:var(--text-muted);}
+  /* métricas empilhadas verticalmente → sem risco de corte */
+  .net-kpis{display:flex;flex-direction:column;}
+  .net-kpi{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border);}
+  .net-kpi:last-child{border-bottom:none;}
+  .net-kpi-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);}
+  .net-kpi-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;text-align:right;}
+  .net-kpi-val.df{color:var(--df);} .net-kpi-val.nf{color:var(--nf);}
+
+  /* SECTION */
+  .section{margin-bottom:28px;}
+  .section-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+  .pill{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:var(--bg-card2);color:var(--text-muted);}
+
+  /* MONTH FILTER */
+  .month-filter{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
+  .month-chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);transition:all .18s;user-select:none;}
+  .month-chip:hover{color:var(--text);border-color:rgba(255,255,255,0.15);}
+  .month-chip.active{color:var(--text);border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,.06);}
+  .month-chip.no-data{opacity:.3;cursor:default;}
+  .month-chip.no-data:hover{color:var(--text-muted);border-color:var(--border);}
+
+  /* UNIT ACCORDION */
+  .unit-blocks{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+  .unit-block{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .unit-block-header{display:flex;align-items:center;gap:12px;padding:14px 20px;cursor:pointer;transition:background .18s;user-select:none;}
+  .unit-block-header:hover{background:rgba(255,255,255,0.03);}
+  .unit-block-header.open{border-bottom:1px solid var(--border);}
+  .unit-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;}
+  .unit-badge.df{background:var(--df-glow);color:var(--df);}
+  .unit-badge.nf{background:var(--nf-glow);color:var(--nf);}
+  .unit-name{font-size:14px;font-weight:700;flex:1;}
+
+  /* KPIs inline no header — 4 colunas com tamanho fixo */
+  .unit-header-kpis{display:grid;grid-template-columns:repeat(4,130px);gap:0;margin-right:12px;}
+  .uhk{text-align:center;padding:0 8px;}
+  .uhk-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px;}
+  .uhk-val{font-size:15px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap;}
+  .uhk-val.df{color:var(--df);} .uhk-val.nf{color:var(--nf);}
+  .uhk-val.good{color:var(--green);} .uhk-val.warn{color:var(--yellow);} .uhk-val.bad{color:var(--red);}
+
+  .unit-chevron{font-size:14px;color:var(--text-muted);transition:transform .22s;flex-shrink:0;}
+  .unit-chevron.open{transform:rotate(180deg);}
+  .unit-block-body{display:none;padding:20px;}
+  .unit-block-body.open{display:block;}
+
+  /* Camp rows */
+  .camp-section{margin-bottom:16px;}
+  .camp-section:last-child{margin-bottom:0;}
+  .camp-section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .camp-type-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .camp-type-dot.whats{background:#25D366;} .camp-type-dot.grupovip{background:#F59E0B;}
+  .camp-type-dot.engajamento{background:#EC4899;} .camp-type-dot.seguidores{background:#3B82F6;}
+  .camp-row{display:grid;grid-template-columns:100px repeat(5,1fr);gap:8px;align-items:center;padding:10px 14px;background:var(--bg-card2);border-radius:8px;margin-bottom:6px;}
+  .camp-row:last-child{margin-bottom:0;}
+  .camp-row-cell{display:flex;flex-direction:column;}
+  .cr-label{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px;}
+  .cr-month{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text);}
+  .cr-val{font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text-dim);}
+  .cr-val.good{color:var(--green);} .cr-val.warn{color:var(--yellow);} .cr-val.bad{color:var(--red);}
+
+  /* ANALYSIS CARD (substitui ranking nas views por mês) */
+  .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .analysis-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .analysis-card.hl-good{border-left:3px solid var(--green);}
+  .analysis-card.hl-warn{border-left:3px solid var(--yellow);}
+  .analysis-card.hl-bad{border-left:3px solid var(--red);}
+  .analysis-card.hl-df{border-left:3px solid var(--df);}
+  .analysis-card.hl-nf{border-left:3px solid var(--nf);}
+  .analysis-card h4{font-size:13px;font-weight:700;margin-bottom:6px;}
+  .analysis-card p{font-size:12.5px;color:var(--text-muted);line-height:1.7;}
+  .analysis-card strong{color:var(--text-dim);}
+  .analysis-card .big-num{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;margin:6px 0;}
+
+  /* RANKING — HORIZONTAL BAR */
+  .hbar-list{display:flex;flex-direction:column;gap:10px;}
+  .hbar-item{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;}
+  .hbar-medal{font-size:22px;flex-shrink:0;width:28px;text-align:center;line-height:1;}
+  .hbar-pos{font-size:16px;font-weight:800;font-family:'DM Mono',monospace;color:var(--text-muted);width:28px;text-align:center;flex-shrink:0;}
+  .hbar-info{flex:1;min-width:0;}
+  .hbar-name{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;}
+  .hbar-meta{font-size:11px;color:var(--text-muted);margin-bottom:6px;}
+  .hbar-track{height:8px;background:var(--bg-card2);border-radius:4px;overflow:hidden;}
+  .hbar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .hbar-fill.gold{background:linear-gradient(90deg,#F59E0B,#FCD34D);}
+  .hbar-fill.silver{background:linear-gradient(90deg,#94A3B8,#CBD5E1);}
+  .hbar-fill.bronze{background:linear-gradient(90deg,#B45309,#D97706);}
+  .hbar-fill.nf{background:linear-gradient(90deg,var(--nf),rgba(168,85,247,.35));}
+  .hbar-fill.df{background:linear-gradient(90deg,var(--df),rgba(249,115,22,.35));}
+  .hbar-cpl{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;flex-shrink:0;text-align:right;min-width:82px;}
+  .hbar-cpl.good{color:var(--green);}
+  .hbar-cpl.warn{color:var(--yellow);}
+  .hbar-cpl.bad{color:var(--red);}
+  /* legacy rank-list kept for df (still uses it) */
+  .rank-list{display:flex;flex-direction:column;gap:10px;}
+  .rank-item{display:flex;align-items:center;gap:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;}
+  .rank-num{font-size:18px;font-weight:800;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:28px;}
+  .rank-num.gold{color:#F59E0B;} .rank-num.silver{color:#94A3B8;} .rank-num.bronze{color:#B45309;}
+  .rank-info{flex:1;}
+  .rank-info strong{display:block;font-size:13.5px;font-weight:600;}
+  .rank-info span{font-size:12px;color:var(--text-muted);}
+  .rank-cpl{font-family:'DM Mono',monospace;font-size:16px;font-weight:700;}
+
+  /* CHARTS */
+  .chart-container{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;}
+  .chart-title{font-size:13px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+  .chart-legend{display:flex;gap:16px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);}
+  .legend-dot{width:8px;height:8px;border-radius:2px;}
+  .bar-chart{display:flex;flex-direction:column;gap:14px;}
+  .bar-row{display:flex;align-items:center;gap:12px;}
+  .bar-label{width:70px;font-size:12px;color:var(--text-muted);flex-shrink:0;text-align:right;}
+  .bar-track{flex:1;height:28px;background:var(--bg-card2);border-radius:5px;overflow:hidden;padding:4px;}
+  .bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:600;font-family:'DM Mono',monospace;color:rgba(255,255,255,.85);transition:width .6s cubic-bezier(.4,0,.2,1);min-width:2px;}
+  .bar-fill.df{background:var(--df);} .bar-fill.nf{background:var(--nf);}
+
+  /* INSIGHTS */
+  .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .insight-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .insight-card.hl-df{border-left:3px solid var(--df);}
+  .insight-card.hl-nf{border-left:3px solid var(--nf);}
+  .insight-card.hl-warn{border-left:3px solid var(--yellow);}
+  .insight-card.hl-good{border-left:3px solid var(--green);}
+  .insight-icon{font-size:20px;margin-bottom:10px;}
+  .insight-card h4{font-size:13.5px;font-weight:700;margin-bottom:6px;}
+  .insight-card p{font-size:12.5px;color:var(--text-muted);line-height:1.7;}
+  .insight-card strong{color:var(--text-dim);}
+
+  /* ADMIN */
+  .admin-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
+  .admin-panel h3{font-size:14px;font-weight:700;margin-bottom:16px;}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:16px;}
+  .form-group label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
+  .form-group input,.form-group select{width:100%;background:var(--bg-base);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+  .form-group input:focus,.form-group select:focus{border-color:rgba(255,255,255,0.2);}
+  .form-group select option{background:#1a1a25;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{padding:10px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .18s,transform .1s;}
+  .btn:hover{opacity:.85;} .btn:active{transform:scale(.98);}
+  .btn-df{background:var(--df);color:#fff;}
+  .btn-secondary{background:var(--bg-card2);color:var(--text-dim);border:1px solid var(--border);}
+  .btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+  .admin-msg{font-size:12px;margin-top:12px;min-height:18px;}
+  .admin-msg.ok{color:var(--green);} .admin-msg.err{color:var(--red);}
+  .data-entry-grid{display:flex;flex-direction:column;gap:10px;}
+  .data-entry{background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .data-entry .entry-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);min-width:150px;}
+  .data-entry .entry-vals{display:flex;gap:16px;flex-wrap:wrap;flex:1;font-size:12px;color:var(--text-dim);}
+  .data-entry .entry-del{background:none;border:1px solid rgba(239,68,68,.2);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;flex-shrink:0;}
+  .data-entry .entry-del:hover{background:rgba(239,68,68,.1);}
+
+  /* info box */
+  .info-box{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:16px 18px;margin-bottom:20px;}
+  .info-box h4{font-size:13px;font-weight:700;color:#60A5FA;margin-bottom:6px;}
+  .info-box p{font-size:12.5px;color:var(--text-muted);line-height:1.7;}
+  .info-box code{background:rgba(255,255,255,0.06);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--text-dim);}
+
+  /* EFFICIENCY COMPARATIVES */
+  .eff-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:4px;}
+  .eff-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+  .eff-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--df),var(--nf));}
+  .eff-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+  .eff-main{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;line-height:1;margin-bottom:6px;}
+  .eff-main.good{color:var(--green);}
+  .eff-main.warn{color:var(--yellow);}
+  .eff-main.bad{color:var(--red);}
+  .eff-main.neutral{color:var(--text);}
+  .eff-sub{font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:10px;}
+  .eff-compare{display:flex;gap:0;border-top:1px solid var(--border);padding-top:12px;margin-top:2px;}
+  .eff-citem{flex:1;text-align:center;padding:0 8px;}
+  .eff-citem+.eff-citem{border-left:1px solid var(--border);}
+  .eff-clabel{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:3px;}
+  .eff-clabel.df{color:var(--df);}
+  .eff-clabel.nf{color:var(--nf);}
+  .eff-cval{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text-dim);}
+  .eff-delta{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px;}
+  .eff-delta.better{background:rgba(34,197,94,.12);color:var(--green);}
+  .eff-delta.worse{background:rgba(239,68,68,.12);color:var(--red);}
+  .eff-delta.flat{background:rgba(255,255,255,.06);color:var(--text-muted);}
+  /* ALERTS */
+  .alerts-list{display:flex;flex-direction:column;gap:10px;}
+  .alert-item{display:flex;align-items:flex-start;gap:14px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid transparent;border-radius:12px;padding:16px 18px;}
+  .alert-item.alert-warn{border-left-color:var(--yellow);}
+  .alert-item.alert-bad{border-left-color:var(--red);}
+  .alert-item.alert-good{border-left-color:var(--green);}
+  .alert-item.alert-info{border-left-color:#3B82F6;}
+  .alert-icon{font-size:20px;flex-shrink:0;line-height:1.3;}
+  .alert-title{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .alert-desc{font-size:12.5px;color:var(--text-muted);line-height:1.6;}
+  .alert-desc strong{color:var(--text-dim);}
+  .alert-tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-right:4px;margin-top:6px;}
+  .alert-tag.df{background:var(--df-glow);color:var(--df);}
+  .alert-tag.nf{background:var(--nf-glow);color:var(--nf);}
+  .no-alerts{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;color:var(--text-muted);font-size:13px;}
+  .page{display:none;} .page.active{display:block;}
+  .accent-df{color:var(--df);} .accent-nf{color:var(--nf);}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  @media(max-width:1100px){
+    .unit-header-kpis{grid-template-columns:repeat(4,110px);}
+  }
+  @media(max-width:900px){
+    .sidebar{display:none;} .main{margin-left:0;padding:20px;}
+    .network-split{grid-template-columns:1fr;} .insights-grid{grid-template-columns:1fr;}
+    .unit-header-kpis{grid-template-columns:repeat(2,120px);}
+    .analysis-grid{grid-template-columns:1fr;}
+  }
+</style>
+<style type="text/css">@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');</style><script>_userEntries = [];</script><style type="text/css">@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');</style><script>_userEntries = [];</script><style type="text/css">
+    @font-face {
+      font-family: 'Work Sans';
+      font-style: normal;
+      font-display: swap;
+      font-weight: 100 900;
+      src: url('chrome-extension://lknmjhcajhfbbglglccadlfdjbaiifig/fonts/work-sans-latin-wght-normal.woff2') format('woff2');
+    }
+  </style></head>
+<body>
+
+<!-- LOGIN -->
+<!-- ADMIN LOGIN MODAL -->
+<div id="adminLoginModal" style="display: none; position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
+  <div class="login-box" style="position:relative;">
+    <button onclick="fecharModalAdmin()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;">✕</button>
+    <div class="login-logo"><div class="dot df"></div><strong style="font-size:15px;font-weight:700;">Admin / Dados</strong><div class="dot nf"></div></div>
+    <h2 style="font-size:16px;">Acesso Restrito</h2>
+    <p>Apenas para gestores</p>
+    <input class="login-field" id="loginPass" type="password" placeholder="Senha" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display: none; position: fixed; inset: 0px; background: rgba(0, 0, 0, 0.75); z-index: 9998; align-items: center; justify-content: center; overflow: auto;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:28px 32px;width:520px;max-width:95vw;position:relative;margin:20px auto;">
+    <button onclick="fecharEdit()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;">✕</button>
+    <h3 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:20px;">✏️ Editar Entrada</h3>
+    <input type="hidden" id="editIdx" value="13">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="form-group"><label>Rede</label>
+        <select id="editRede"><option value="df">D.finefit</option><option value="nf">Nova Fit</option></select></div>
+      <div class="form-group"><label>Unidade</label>
+        <select id="editUnidade"><option value="Campo Limpo">Campo Limpo</option><option value="Jd. Jacira">Jd. Jacira</option><option value="Jd. Niterói">Jd. Niterói</option><option value="Oficial">Oficial</option><option value="Paraisópolis" selected="">Paraisópolis</option></select></div>
+      <div class="form-group"><label>Mês</label>
+        <select id="editMes"><option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option></select></div>
+      <div class="form-group"><label>Tipo</label>
+        <select id="editTipo"><option value="whats">WhatsApp</option><option value="grupovip">Grupo Vip</option><option value="seguidores">Seguidores</option><option value="engajamento">Engajamento</option></select></div>
+      <div class="form-group"><label>Investimento (R$)</label><input id="editInvest" type="text" placeholder="0.00"></div>
+      <div class="form-group"><label>Leads</label><input id="editLeads" type="text" placeholder="0"></div>
+      <div class="form-group"><label>Alcance</label><input id="editAlcance" type="text" placeholder="0"></div>
+      <div class="form-group"><label>Impressões</label><input id="editImpress" type="text" placeholder="0"></div>
+      <div class="form-group"><label>Cliques no Link</label><input id="editCliques" type="text" placeholder="0"></div>
+      <div class="form-group"><label>Seguidores</label><input id="editSeg" type="text" placeholder="0"></div>
+      <div class="form-group"><label>Membros Grupo Vip</label><input id="editGvip" type="text" placeholder="0"></div>
+      <div class="form-group"><label>Engajamento</label><input id="editEngage" type="text" placeholder="0"></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-df" onclick="salvarEdit()">✅ Salvar Alterações</button>
+      <button class="btn btn-secondary" onclick="fecharEdit()">Cancelar</button>
+    </div>
+    <div class="admin-msg" id="editMsg"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display: flex;">
+  <nav class="sidebar">
+    <div class="sidebar-brand"><span>Painel</span><strong>Performance 2026</strong></div>
+    <div class="nav-section">
+      <span class="nav-label">Visão Geral</span>
+      <div class="nav-item active" id="nav-geral" onclick="goPage('geral')"><span class="nav-dot geral"></span> Dashboard Geral</div>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">D.finefit</span>
+      <div class="nav-item" id="nav-df" onclick="goPage('df')"><span class="nav-dot df"></span> Visão D.finefit</div>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Nova Fit</span>
+      <div class="nav-item" id="nav-nf" onclick="goPage('nf')"><span class="nav-dot nf"></span> Visão Nova Fit</div>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Gestão</span>
+      <div class="nav-item" id="nav-admin" onclick="abrirAdmin()"><span class="nav-dot admin"></span> Admin / Dados</div>
+    </div>
+    <div class="sidebar-footer">
+      <span>Atualizado: <span id="lastUpdate">26/06/2026</span></span>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ══ GERAL ══ -->
+    <div class="page active" id="page-geral">
+      <div class="topbar"><div><h1>Dashboard Geral</h1><p>Consolidado das duas redes · Janeiro – Dezembro 2026</p></div></div>
+      <div class="network-split" id="geralNetCards">
+    <div class="net-card">
+      <div class="net-card-header df">
+        <div class="net-logo-wrap df">
+          <svg width="60" height="18" viewBox="0 0 96 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <text x="0" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="18" fill="#F97316" letter-spacing="-1">D.</text>
+    <text x="18" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="18" fill="#e8e8f0">Fine</text>
+    <text x="57" y="20" font-family="Arial Black,sans-serif" font-weight="400" font-size="18" fill="#ffffff">fit</text>
+  </svg>
+        </div>
+        <div class="net-logo-text">
+          <div class="brand-sub" style="margin-bottom:2px;">4 unidades ativas</div>
+        </div>
+      </div>
+      <div class="net-kpis">
+        <div class="net-kpi"><span class="net-kpi-label">Investimento Total</span><span class="net-kpi-val df">R$&nbsp;18.684,88</span></div>
+        <div class="net-kpi"><span class="net-kpi-label">Leads WhatsApp</span><span class="net-kpi-val df">915</span></div>
+        <div class="net-kpi"><span class="net-kpi-label">CPL Médio</span><span class="net-kpi-val warn">R$&nbsp;5,71</span></div>
+      </div>
+    </div>
+    <div class="net-card">
+      <div class="net-card-header nf">
+        <div class="net-logo-wrap nf">
+          <svg width="60" height="18" viewBox="0 0 110 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <text x="0" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="17" fill="#e8e8f0" font-style="italic">nova</text>
+    <rect x="52" y="2" width="40" height="22" rx="11" fill="#F5A623"></rect>
+    <text x="57" y="19" font-family="Arial Black,sans-serif" font-weight="900" font-size="15" fill="#2d1a6e" font-style="italic">fit</text>
+  </svg>
+        </div>
+        <div class="net-logo-text">
+          <div class="brand-sub" style="margin-bottom:2px;">10 unidades ativas</div>
+        </div>
+      </div>
+      <div class="net-kpis">
+        <div class="net-kpi"><span class="net-kpi-label">Investimento Total</span><span class="net-kpi-val nf">R$&nbsp;12.117,46</span></div>
+        <div class="net-kpi"><span class="net-kpi-label">Leads WhatsApp</span><span class="net-kpi-val nf">1.993</span></div>
+        <div class="net-kpi"><span class="net-kpi-label">CPL Médio</span><span class="net-kpi-val warn">R$&nbsp;6,08</span></div>
+      </div>
+    </div></div>
+
+      <div class="section">
+        <div class="section-title">📈 Comparativos de Eficiência</div>
+        <div id="geralEfficiency">
+    <div class="eff-grid">
+      <div class="eff-card">
+        <div class="eff-label">CPL Benchmark Geral</div>
+        <div class="eff-main warn">R$&nbsp;5,96</div>
+        <div class="eff-sub">CPL ponderado das duas redes. Referência para avaliar cada unidade.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel df">D.finefit</div><div class="eff-cval">R$&nbsp;5,71</div></div>
+          <div class="eff-citem"><div class="eff-clabel nf">Nova Fit</div><div class="eff-cval">R$&nbsp;6,08</div></div>
+        </div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Evolução de CPL · D.finefit</div>
+        <div class="eff-main good">R$&nbsp;4,75</div>
+        <div class="eff-sub">Janeiro vs Março. Variação de R$&nbsp;4,62 por lead.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Janeiro</div><div class="eff-cval">R$&nbsp;9,37</div></div>
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Março</div><div class="eff-cval">R$&nbsp;4,75</div></div>
+        </div>
+        <div class="eff-delta better">↓ 49.3% vs Janeiro</div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Evolução de CPL · Nova Fit</div>
+        <div class="eff-main good">R$&nbsp;6,02</div>
+        <div class="eff-sub">Janeiro vs Março. Variação de R$&nbsp;0,15 por lead.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Janeiro</div><div class="eff-cval">R$&nbsp;6,17</div></div>
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Março</div><div class="eff-cval">R$&nbsp;6,02</div></div>
+        </div>
+        <div class="eff-delta better">↓ 2.4% vs Janeiro</div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Custo por 1.000 Alcançados · DF</div>
+        <div class="eff-main neutral">R$&nbsp;40,97</div>
+        <div class="eff-sub">Quanto a D.finefit paga para impactar 1.000 pessoas únicas via WhatsApp.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel df">Alcance</div><div class="eff-cval">127.448</div></div>
+          <div class="eff-citem"><div class="eff-clabel df">Investido</div><div class="eff-cval">R$&nbsp;5.221,68</div></div>
+        </div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Custo por 1.000 Alcançados · NF</div>
+        <div class="eff-main neutral">R$&nbsp;31,34</div>
+        <div class="eff-sub">Quanto a Nova Fit paga para impactar 1.000 pessoas únicas via WhatsApp.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel nf">Alcance</div><div class="eff-cval">386.597</div></div>
+          <div class="eff-citem"><div class="eff-clabel nf">Investido</div><div class="eff-cval">R$&nbsp;12.117,46</div></div>
+        </div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Custo por 1.000 Alcançados · Geral</div>
+        <div class="eff-main neutral">R$&nbsp;33,73</div>
+        <div class="eff-sub">Benchmark combinado das duas redes para eficiência de distribuição.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Total Alcance</div><div class="eff-cval">514.045</div></div>
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Total Invest.</div><div class="eff-cval">R$&nbsp;17.339,14</div></div>
+        </div>
+      </div>
+    </div></div>
+      </div>
+    </div>
+
+    <!-- ══ D.FINEFIT ══ -->
+    <div class="page" id="page-df">
+      <div class="topbar"><div><h1><span class="accent-df">D.finefit</span></h1><p>Performance por unidade · Janeiro – Dezembro 2026</p></div></div>
+      <div class="kpi-grid" id="dfKpis"><div class="kpi-card df"><div class="kpi-label">Investimento Total</div><div class="kpi-value">R$&nbsp;2.189,23</div><div class="kpi-sub">Todas as campanhas</div></div><div class="kpi-card df"><div class="kpi-label">Leads WhatsApp</div><div class="kpi-value">96</div><div class="kpi-sub">Campanha de conversão</div></div><div class="kpi-card df"><div class="kpi-label">CPL Médio</div><div class="kpi-value">R$&nbsp;6,53</div><div class="kpi-sub">WhatsApp</div></div><div class="kpi-card df"><div class="kpi-label">Alcance Total</div><div class="kpi-value">7.663</div><div class="kpi-sub">WhatsApp</div></div></div>
+      <div class="month-filter" id="dfMonthFilter"><div class="month-chip" onclick="dfMonth='Todos';renderDF()">Todos</div><div class="month-chip" onclick="dfMonth='Janeiro';renderDF()">Janeiro</div><div class="month-chip" onclick="dfMonth='Fevereiro';renderDF()">Fevereiro</div><div class="month-chip" onclick="dfMonth='Março';renderDF()">Março</div><div class="month-chip" onclick="dfMonth='Abril';renderDF()">Abril</div><div class="month-chip" onclick="dfMonth='Maio';renderDF()">Maio</div><div class="month-chip active" onclick="dfMonth='Junho';renderDF()">Junho</div><div class="month-chip no-data">Julho</div><div class="month-chip no-data">Agosto</div><div class="month-chip no-data">Setembro</div><div class="month-chip no-data">Outubro</div><div class="month-chip no-data">Novembro</div><div class="month-chip no-data">Dezembro</div></div>
+      <div class="section-title" style="margin-bottom:14px;">Unidades</div>
+      <div class="unit-blocks" id="dfUnitBlocks">
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_df_0" data-unitid="ub_df_0">
+          <span class="unit-badge df">DF</span>
+          <span class="unit-name">Campo Limpo</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val df">R$&nbsp;318,10</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">43</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;7,40</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">3.687</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_df_0">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_df_0"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Junho</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;318,10</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">43</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;7,40</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">3.687</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">15.010</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">63</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="11" data-eid="" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="11" data-eid="" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_df_1" data-unitid="ub_df_1">
+          <span class="unit-badge df">DF</span>
+          <span class="unit-name">Jd. Jacira</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val df">R$&nbsp;308,74</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">53</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;5,83</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">3.976</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_df_1">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_df_1"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Junho</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;308,74</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">53</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;5,83</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">3.976</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">20.229</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">84</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="12" data-eid="" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="12" data-eid="" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_df_2" data-unitid="ub_df_2">
+          <span class="unit-badge df">DF</span>
+          <span class="unit-name">Oficial</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val df">R$&nbsp;860,80</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">—</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val ">—</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">—</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_df_2">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_df_2"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot seguidores"></span> Seguidores
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(5,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Junho</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;425,69</div></div><div class="camp-row-cell"><div class="cr-label">Seguidores</div><div class="cr-val" style="">804</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">38.126</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">62.994</div></div><div class="camp-row-cell"><div class="cr-label">Custo/Seg.</div><div class="cr-val" style="color:var(--yellow);font-weight:700;">R$&nbsp;0,53</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="14" data-eid="" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="14" data-eid="" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot engajamento"></span> Engajamento
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(5,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Junho</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;435,11</div></div><div class="camp-row-cell"><div class="cr-label">Engajamento</div><div class="cr-val" style="">69.166</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">115.647</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">121.368</div></div><div class="camp-row-cell"><div class="cr-label">Custo/Eng.</div><div class="cr-val" style="color:var(--yellow);font-weight:700;">R$&nbsp;0,01</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="15" data-eid="" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="15" data-eid="" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_df_3" data-unitid="ub_df_3">
+          <span class="unit-badge df">DF</span>
+          <span class="unit-name">Paraisópolis</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val df">R$&nbsp;701,59</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">—</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val ">—</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">—</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_df_3">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_df_3"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot engajamento"></span> Engajamento
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(5,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Junho</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;359,90</div></div><div class="camp-row-cell"><div class="cr-label">Engajamento</div><div class="cr-val" style="">28.672</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">55.302</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">65.239</div></div><div class="camp-row-cell"><div class="cr-label">Custo/Eng.</div><div class="cr-val" style="color:var(--yellow);font-weight:700;">R$&nbsp;0,01</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="13" data-eid="" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="13" data-eid="" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot seguidores"></span> Seguidores
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(5,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Junho</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;341,69</div></div><div class="camp-row-cell"><div class="cr-label">Seguidores</div><div class="cr-val" style="">726</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">39.451</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">67.857</div></div><div class="camp-row-cell"><div class="cr-label">Custo/Seg.</div><div class="cr-val" style="color:var(--yellow);font-weight:700;">R$&nbsp;0,47</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="16" data-eid="" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="16" data-eid="" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div></div>
+      <div class="section" id="dfBottomSection"><div class="section-title">📊 Análise de Desempenho · Junho</div><div class="analysis-grid">
+    <div class="analysis-card hl-df">
+      <h4>💰 Investimento Total · Junho</h4>
+      <div class="big-num" style="color:var(--df)">R$&nbsp;2.189,23</div>
+      <p>Distribuído em <strong>3 tipos de campanha</strong>: WhatsApp, Engajamento, Seguidores.<br>
+      Alcance combinado: <strong>256.189</strong> · Impressões: <strong>352.697</strong></p>
+    </div>
+    <div class="analysis-card hl-good">
+      <h4>💬 WhatsApp — Conversão</h4>
+      <div class="big-num" style="color:var(--green)">96 leads</div>
+      <p>Investimento de <strong>R$&nbsp;626,84</strong>.<br>
+      CPL médio do período: <strong style="color:var(--warn)">R$&nbsp;6,53</strong><br>Melhor unidade: <strong>Jd. Jacira</strong> (R$&nbsp;5,83)</p>
+    </div>
+    
+    
+    <div class="analysis-card hl-nf" style="border-left-color:var(--df)">
+      <h4>👥 Seguidores — Crescimento</h4>
+      <div class="big-num" style="color:var(--df)">1.530 seguidores</div>
+      <p>Investimento de <strong>R$&nbsp;767,38</strong> para crescimento de base.<br>Custo por seguidor: <strong>R$&nbsp;0,50</strong></p>
+    </div>
+    
+    <div class="analysis-card hl-good">
+      <h4>❤️ Engajamento</h4>
+      <div class="big-num" style="color:var(--green)">97.838</div>
+      <p>Interações geradas com investimento de <strong>R$&nbsp;795,01</strong>.</p>
+    </div>
+    
+    <div class="analysis-card hl-bad">
+      <h4>⚠️ Atenção — CPL mais alto</h4>
+      <div class="big-num" style="color:var(--red)">R$&nbsp;7,40</div>
+      <p>Unidade <strong>Campo Limpo</strong> — 43 leads com R$&nbsp;318,10 investido. Oportunidade de otimização de criativo/segmentação.</p>
+    </div>
+  </div></div>
+    </div>
+
+    <!-- ══ NOVA FIT ══ -->
+    <div class="page" id="page-nf">
+      <div class="topbar"><div><h1><span class="accent-nf">Nova Fit</span></h1><p>Performance por unidade · Janeiro – Dezembro 2026</p></div></div>
+      <div class="kpi-grid" id="nfKpis"><div class="kpi-card nf"><div class="kpi-label">Investimento Total</div><div class="kpi-value">R$&nbsp;12.117,46</div><div class="kpi-sub">Todas as campanhas</div></div><div class="kpi-card nf"><div class="kpi-label">Leads WhatsApp</div><div class="kpi-value">1.993</div><div class="kpi-sub">Por unidade</div></div><div class="kpi-card nf"><div class="kpi-label">CPL Médio</div><div class="kpi-value">R$&nbsp;6,08</div><div class="kpi-sub">WhatsApp</div></div><div class="kpi-card nf"><div class="kpi-label">Alcance Total</div><div class="kpi-value">386.597</div><div class="kpi-sub">WhatsApp</div></div></div>
+      <div class="month-filter" id="nfMonthFilter"><div class="month-chip active" onclick="nfMonth='Todos';renderNF()">Todos</div><div class="month-chip" onclick="nfMonth='Janeiro';renderNF()">Janeiro</div><div class="month-chip no-data">Fevereiro</div><div class="month-chip" onclick="nfMonth='Março';renderNF()">Março</div><div class="month-chip no-data">Abril</div><div class="month-chip no-data">Maio</div><div class="month-chip no-data">Junho</div><div class="month-chip no-data">Julho</div><div class="month-chip no-data">Agosto</div><div class="month-chip no-data">Setembro</div><div class="month-chip no-data">Outubro</div><div class="month-chip no-data">Novembro</div><div class="month-chip no-data">Dezembro</div></div>
+      <div class="section-title" style="margin-bottom:14px;">Unidades</div>
+      <div class="unit-blocks" id="nfUnitBlocks">
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_0" data-unitid="ub_nf_0">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Heliópolis</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.175,12</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">305</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val good">R$&nbsp;3,85</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">32.260</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_0">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_0"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;471,89</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">127</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val good" style="">R$&nbsp;3,72</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">16.201</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">39.457</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">250</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_25_94083" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_25_94083" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;703,23</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">178</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val good" style="">R$&nbsp;3,95</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">16.059</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">54.656</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">326</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_26_85583" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_26_85583" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_1" data-unitid="ub_nf_1">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Indiana</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.199,74</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">108</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val bad">R$&nbsp;11,11</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">32.588</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_1">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_1"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;496,53</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">39</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;12,73</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">20.300</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">37.831</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">128</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_23_53173" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_23_53173" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;703,21</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">69</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;10,19</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">12.288</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">43.938</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">206</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_24_56782" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_24_56782" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_2" data-unitid="ub_nf_2">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Macedônia</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.225,85</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">170</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;7,21</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">40.739</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_2">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_2"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;523,02</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">54</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;9,69</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">24.104</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">41.155</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">148</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_31_53664" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_31_53664" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;702,83</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">116</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;6,06</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">16.635</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">40.235</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">237</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_32_50627" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_32_50627" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_3" data-unitid="ub_nf_3">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Parelheiros</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.211,65</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">224</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;5,41</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">37.234</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_3">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_3"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;508,15</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">117</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val good" style="">R$&nbsp;4,34</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">21.216</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">52.176</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">240</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="7" data-eid="base_29_81260" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="7" data-eid="base_29_81260" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;703,50</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">107</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;6,57</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">16.018</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">53.608</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">223</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_30_87339" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_30_87339" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_4" data-unitid="ub_nf_4">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Parque Fernanda</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.231,84</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">152</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;8,10</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">45.428</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_4">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_4"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;528,99</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">77</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;6,87</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">29.887</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">49.643</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">185</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_15_92120" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_15_92120" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;702,85</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">75</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;9,37</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">15.541</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">44.704</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">195</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_16_49513" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_16_49513" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_5" data-unitid="ub_nf_5">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Pq. Independência</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.226,97</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">161</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;7,62</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">31.452</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_5">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_5"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;523,61</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">63</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;8,31</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">17.625</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">39.904</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">174</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_27_35091" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_27_35091" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;703,36</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">98</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;7,18</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">13.827</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">48.599</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">254</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_28_64282" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_28_64282" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_6" data-unitid="ub_nf_6">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Pq. Res. Cocaia</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.182,27</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">455</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val good">R$&nbsp;2,60</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">48.683</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_6">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_6"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;478,69</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">189</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val good" style="">R$&nbsp;2,53</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">22.152</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">53.045</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">344</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_19_57112" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_19_57112" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;703,58</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">266</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val good" style="">R$&nbsp;2,65</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">26.531</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">75.381</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">531</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_20_74174" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_20_74174" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_7" data-unitid="ub_nf_7">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Santo Antônio</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.236,21</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">141</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;8,77</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">37.244</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_7">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_7"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;533,18</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">40</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;13,33</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">20.497</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">42.844</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">140</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_21_62029" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_21_62029" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;703,03</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">101</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;6,96</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">16.747</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">53.375</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">264</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_22_63432" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_22_63432" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_8" data-unitid="ub_nf_8">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Santo Eduardo</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.220,60</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">137</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;8,91</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">41.883</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_8">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_8"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;517,68</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">63</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;8,22</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">27.742</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">47.535</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">179</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_13_15375" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_13_15375" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;702,92</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">74</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;9,50</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">14.141</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">46.733</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">230</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_14_88708" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_14_88708" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div>
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_ub_nf_9" data-unitid="ub_nf_9">
+          <span class="unit-badge nf">NF</span>
+          <span class="unit-name">Umarizal</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val nf">R$&nbsp;1.207,21</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">140</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val warn">R$&nbsp;8,62</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">39.086</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_ub_nf_9">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_ub_nf_9"><div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot whats"></span> WhatsApp
+        </div>
+        <div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Janeiro</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;504,39</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">56</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val bad" style="">R$&nbsp;9,01</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">23.252</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">39.931</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">150</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_17_43567" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_17_43567" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div><div class="camp-row" style="grid-template-columns:100px repeat(6,1fr) 90px;align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">Março</div></div>
+    <div class="camp-row-cell"><div class="cr-label">Investimento</div><div class="cr-val" style="">R$&nbsp;702,82</div></div><div class="camp-row-cell"><div class="cr-label">Leads</div><div class="cr-val" style="">84</div></div><div class="camp-row-cell"><div class="cr-label">CPL</div><div class="cr-val warn" style="">R$&nbsp;8,37</div></div><div class="camp-row-cell"><div class="cr-label">Alcance</div><div class="cr-val" style="">15.834</div></div><div class="camp-row-cell"><div class="cr-label">Impressões</div><div class="cr-val" style="">46.752</div></div><div class="camp-row-cell"><div class="cr-label">Cliques</div><div class="cr-val" style="">207</div></div>
+    <div><div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="" data-eid="base_18_99900" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="" data-eid="base_18_99900" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div></div>
+  </div>
+      </div></div>
+      </div></div>
+      <div class="section" id="nfBottomSection"><div class="section-title">🏆 Ranking de CPL · WhatsApp <span class="pill">Acumulado</span></div><div class="hbar-list"><div class="hbar-item">
+      <div class="hbar-medal">🥇</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Pq. Res. Cocaia</div>
+        <div class="hbar-meta">455 leads · R$&nbsp;1.182,27 investido</div>
+        <div class="hbar-track"><div class="hbar-fill gold" style="width:80%"></div></div>
+      </div>
+      <div class="hbar-cpl good">R$&nbsp;2,60</div>
+    </div><div class="hbar-item">
+      <div class="hbar-medal">🥈</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Heliópolis</div>
+        <div class="hbar-meta">305 leads · R$&nbsp;1.175,12 investido</div>
+        <div class="hbar-track"><div class="hbar-fill silver" style="width:71%"></div></div>
+      </div>
+      <div class="hbar-cpl good">R$&nbsp;3,85</div>
+    </div><div class="hbar-item">
+      <div class="hbar-medal">🥉</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Parelheiros</div>
+        <div class="hbar-meta">224 leads · R$&nbsp;1.211,65 investido</div>
+        <div class="hbar-track"><div class="hbar-fill bronze" style="width:59%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;5,41</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">04</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Macedônia</div>
+        <div class="hbar-meta">170 leads · R$&nbsp;1.225,85 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:45%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;7,21</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">05</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Pq. Independência</div>
+        <div class="hbar-meta">161 leads · R$&nbsp;1.226,97 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:42%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;7,62</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">06</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Parque Fernanda</div>
+        <div class="hbar-meta">152 leads · R$&nbsp;1.231,84 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:38%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;8,10</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">07</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Umarizal</div>
+        <div class="hbar-meta">140 leads · R$&nbsp;1.207,21 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:34%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;8,62</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">08</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Santo Antônio</div>
+        <div class="hbar-meta">141 leads · R$&nbsp;1.236,21 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:33%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;8,77</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">09</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Santo Eduardo</div>
+        <div class="hbar-meta">137 leads · R$&nbsp;1.220,60 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:32%"></div></div>
+      </div>
+      <div class="hbar-cpl warn">R$&nbsp;8,91</div>
+    </div><div class="hbar-item">
+      <div class="hbar-pos">10</div>
+      <div class="hbar-info">
+        <div class="hbar-name">Indiana</div>
+        <div class="hbar-meta">108 leads · R$&nbsp;1.199,74 investido</div>
+        <div class="hbar-track"><div class="hbar-fill nf" style="width:15%"></div></div>
+      </div>
+      <div class="hbar-cpl bad">R$&nbsp;11,11</div>
+    </div></div></div>
+    </div>
+
+    <!-- ══ ADMIN ══ -->
+    <div class="page" id="page-admin">
+      <div class="topbar"><div><h1>Admin · Gestão de Dados</h1><p>Adicione, edite ou remova dados mês a mês</p></div></div>
+      <div class="tabs">
+        <div class="tab" onclick="adminTab('add')">➕ Adicionar Dados</div>
+        <div class="tab" onclick="adminTab('list')">📋 Ver Entradas</div>
+        <div class="tab active" onclick="adminTab('config')">⚙️ Configurações</div>
+      </div>
+
+      <div id="adminTabAdd" style="display: none;">
+        <div class="admin-panel">
+          <h3>Nova Entrada de Campanha</h3>
+          <div class="form-grid">
+            <div class="form-group"><label>Rede</label>
+              <select id="addRede" onchange="updateUnidades()">
+                <option value="df">D.finefit</option>
+                <option value="nf">Nova Fit</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Unidade</label>
+              <select id="addUnidade"><option value="Heliópolis">Heliópolis</option><option value="Indiana">Indiana</option><option value="Macedônia">Macedônia</option><option value="Parelheiros">Parelheiros</option><option value="Parque Fernanda">Parque Fernanda</option><option value="Pq. Independência">Pq. Independência</option><option value="Pq. Res. Cocaia">Pq. Res. Cocaia</option><option value="Santo Antônio">Santo Antônio</option><option value="Santo Eduardo">Santo Eduardo</option><option value="Umarizal">Umarizal</option></select>
+            </div>
+            <div class="form-group"><label>Mês</label>
+              <select id="addMes"><option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option></select>
+            </div>
+            <div class="form-group"><label>Tipo</label>
+              <select id="addTipo"><option value="whats">WhatsApp</option><option value="grupovip">Grupo Vip</option><option value="seguidores">Seguidores</option><option value="engajamento">Engajamento</option></select>
+            </div>
+            <div class="form-group"><label>Investimento (R$)</label><input id="addInvest" type="number" step="0.01" placeholder="0.00"></div>
+            <div class="form-group"><label>Leads</label><input id="addLeads" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Alcance</label><input id="addAlcance" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Impressões</label><input id="addImpress" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Cliques no Link</label><input id="addCliques" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Seguidores</label><input id="addSeg" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Membros Grupo Vip</label><input id="addGvip" type="number" placeholder="0"></div>
+            <div class="form-group"><label>Engajamento</label><input id="addEngage" type="number" placeholder="0"></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-df" onclick="addEntry()">Salvar Entrada</button>
+            <button class="btn btn-secondary" onclick="clearForm()">Limpar</button>
+          </div>
+          <div class="admin-msg" id="addMsg"></div>
+        </div>
+
+        <div class="admin-panel">
+          <h3>Importação em Lote (JSON)</h3>
+          <div class="info-box">
+            <h4>ℹ️ Para que serve isso?</h4>
+            <p>Se você precisar adicionar dados de <strong>vários meses ou várias unidades de uma vez</strong>, em vez de preencher o formulário acima entrada por entrada, pode exportar um arquivo JSON (botão em Configurações), editá-lo no Excel ou Google Sheets, e importar tudo de uma vez aqui.<br><br>
+            O formato esperado é uma lista de entradas, cada uma com os campos:<br>
+            <code>rede</code>, <code>unidade</code>, <code>mes</code>, <code>tipo</code>, <code>invest</code>, <code>leads</code>, <code>alcance</code>, <code>impressoes</code>, <code>cliques</code>.<br><br>
+            <strong>Na prática, você provavelmente não precisará usar isso</strong> — o formulário acima é suficiente para atualizações mensais normais.</p>
+          </div>
+          <textarea id="jsonBatch" style="width:100%;background:var(--bg-base);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;min-height:100px;resize:vertical;outline:none;" placeholder="[{&quot;rede&quot;:&quot;nf&quot;,&quot;unidade&quot;:&quot;Heliópolis&quot;,&quot;mes&quot;:&quot;Junho&quot;,&quot;tipo&quot;:&quot;whats&quot;,&quot;invest&quot;:703.50,&quot;leads&quot;:155,&quot;alcance&quot;:18200,...}]"></textarea>
+          <div class="btn-row" style="margin-top:12px;"><button class="btn btn-df" onclick="importJSON()">Importar JSON</button></div>
+          <div class="admin-msg" id="jsonMsg"></div>
+        </div>
+      </div>
+
+      <div id="adminTabList" style="display: none;">
+        <div class="admin-panel">
+          <h3>Entradas Adicionadas Manualmente</h3>
+          <div class="btn-row" style="margin-bottom:16px;">
+            <button class="btn btn-secondary" onclick="renderAdminList()">🔄 Atualizar</button>
+            <button class="btn btn-danger" onclick="clearAll()">🗑 Apagar Tudo</button>
+          </div>
+          <div id="adminListContainer"><div class="data-entry-grid">
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Paraisópolis · Maio</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;2.011,12</span></div>
+      <button class="entry-del" onclick="deleteEntry(0)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Paraisópolis · Maio</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;399,96</span></div>
+      <button class="entry-del" onclick="deleteEntry(1)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Paraisópolis · Maio</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;399,98</span></div>
+      <button class="entry-del" onclick="deleteEntry(2)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Oficial · Abril</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;691,20</span></div>
+      <button class="entry-del" onclick="deleteEntry(3)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge "></span>  · </span>
+      <div class="entry-vals"><span>💰 R$&nbsp;0,00</span></div>
+      <button class="entry-del" onclick="deleteEntry(4)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Oficial · Maio</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;999,88</span></div>
+      <button class="entry-del" onclick="deleteEntry(5)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge "></span>  · </span>
+      <div class="entry-vals"><span>💰 R$&nbsp;0,00</span></div>
+      <button class="entry-del" onclick="deleteEntry(6)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge nf">NF</span> Parelheiros · Janeiro</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;508,15</span><span>👥 117 leads</span></div>
+      <button class="entry-del" onclick="deleteEntry(7)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge "></span>  · </span>
+      <div class="entry-vals"><span>💰 R$&nbsp;0,00</span></div>
+      <button class="entry-del" onclick="deleteEntry(8)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge "></span>  · </span>
+      <div class="entry-vals"><span>💰 R$&nbsp;0,00</span></div>
+      <button class="entry-del" onclick="deleteEntry(9)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Oficial · Maio</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;1.107,98</span></div>
+      <button class="entry-del" onclick="deleteEntry(10)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Campo Limpo · Junho</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;318,10</span><span>👥 43 leads</span></div>
+      <button class="entry-del" onclick="deleteEntry(11)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Jd. Jacira · Junho</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;308,74</span><span>👥 53 leads</span></div>
+      <button class="entry-del" onclick="deleteEntry(12)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Paraisópolis · Junho</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;359,90</span></div>
+      <button class="entry-del" onclick="deleteEntry(13)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Oficial · Junho</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;425,69</span></div>
+      <button class="entry-del" onclick="deleteEntry(14)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Oficial · Junho</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;435,11</span></div>
+      <button class="entry-del" onclick="deleteEntry(15)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Paraisópolis · Junho</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;341,69</span></div>
+      <button class="entry-del" onclick="deleteEntry(16)">Remover</button>
+    </div>
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge df">DF</span> Jd. Jacira · Fevereiro</span>
+      <div class="entry-vals"><span>💰 R$&nbsp;2.635,50</span></div>
+      <button class="entry-del" onclick="deleteEntry(17)">Remover</button>
+    </div></div></div>
+        </div>
+      </div>
+
+      <div id="adminTabConfig" style="">
+        <div class="admin-panel">
+          <h3>Alterar Senha de Acesso</h3>
+          <div class="form-grid" style="max-width:400px;">
+            <div class="form-group"><label>Senha Atual</label><input id="cfgOldPass" type="password" placeholder="••••••••"></div>
+            <div class="form-group"><label>Nova Senha</label><input id="cfgNewPass" type="password" placeholder="••••••••"></div>
+            <div class="form-group"><label>Confirmar</label><input id="cfgConfPass" type="password" placeholder="••••••••"></div>
+          </div>
+          <div class="btn-row"><button class="btn btn-df" onclick="changePass()">Salvar Nova Senha</button></div>
+          <div class="admin-msg" id="cfgMsg"></div>
+        </div>
+        <div class="admin-panel">
+          <h3>Exportar / Importar Backup</h3>
+          <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">Exporte um backup dos seus dados para guardar ou editar externamente.</p>
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="exportData()">⬇ Exportar JSON</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">⬆ Importar JSON</button>
+          </div>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importFile(this)">
+          <div class="admin-msg" id="expMsg"></div>
+        </div>
+
+        <div class="admin-panel">
+          <h3>⬇ Baixar Painel Atualizado</h3>
+          <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">Baixe o arquivo HTML do painel com todos os dados atuais embutidos. Use para guardar uma versão offline ou compartilhar com outros.</p>
+          <div class="btn-row">
+            <button class="btn btn-df" onclick="downloadHTML()">⬇ Baixar HTML do Painel</button>
+          </div>
+          <div class="admin-msg" id="dlMsg"></div>
+        </div>
+
+        <div class="admin-panel">
+          <h3>📄 Gerar Relatório para Cliente</h3>
+          <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px;">Gera um relatório visual com identidade da rede, pronto para enviar ao cliente. Escolha a rede e o mês de referência.</p>
+          <div class="form-grid" style="max-width:500px;">
+            <div class="form-group"><label>Rede</label>
+              <select id="repRede"><option value="df">D.finefit</option><option value="nf">Nova Fit</option></select>
+            </div>
+            <div class="form-group"><label>Mês de Referência</label>
+              <select id="repMes"><option value="Todos">Acumulado (todos)</option><option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option><option>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option><option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option></select>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-df" onclick="gerarRelatorio('df')" style="background:var(--df)">📄 Relatório D.finefit</button>
+            <button class="btn btn-nf" onclick="gerarRelatorio('nf')" style="background:var(--nf)">📄 Relatório Nova Fit</button>
+          </div>
+          <div class="admin-msg" id="repMsg"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  DADOS BASE
+// ════════════════════════════════════════════
+const STORAGE_KEY = 'perf2026_entries';
+const MONTHS_ORDER = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// Unidades cadastradas por rede
+const UNIDADES = {
+  df: ['Campo Limpo','Jd. Jacira','Jd. Niterói','Oficial','Paraisópolis'],
+  nf: ['Heliópolis','Indiana','Macedônia','Oficial','Parelheiros','Parque Fernanda','Pq. Independência','Pq. Res. Cocaia','Santo Antônio','Santo Eduardo','Umarizal']
+};
+
+const STATIC_DATA = [{"rede":"df","unidade":"Jd. Niterói","mes":"Janeiro","tipo":"whats","invest":703.28,"leads":72,"alcance":14632,"impressoes":41615,"cliques":172,"_id":"base_0_10150"},{"rede":"df","unidade":"Jd. Niterói","mes":"Março","tipo":"whats","invest":702.61,"leads":95,"alcance":25823,"impressoes":58860,"cliques":203,"_id":"base_1_60264"},{"rede":"df","unidade":"Campo Limpo","mes":"Janeiro","tipo":"whats","invest":729.58,"leads":81,"alcance":13425,"impressoes":40277,"cliques":211,"_id":"base_2_18753"},{"rede":"df","unidade":"Campo Limpo","mes":"Março","tipo":"whats","invest":702.72,"leads":120,"alcance":42940,"impressoes":76854,"cliques":261,"_id":"base_3_17645"},{"rede":"df","unidade":"Jd. Jacira","mes":"Março","tipo":"whats","invest":1756.65,"leads":451,"alcance":22965,"impressoes":122401,"cliques":945,"_id":"base_4_20858"},{"rede":"df","unidade":"Jd. Niterói","mes":"Janeiro","tipo":"grupovip","invest":171.31,"cliques":788,"alcance":21026,"impressoes":27919,"_id":"base_5_80131"},{"rede":"df","unidade":"Campo Limpo","mes":"Janeiro","tipo":"grupovip","invest":145.78,"cliques":640,"alcance":14077,"impressoes":19012,"_id":"base_6_13014"},{"rede":"df","unidade":"Jd. Jacira","mes":"Fevereiro","tipo":"grupovip","invest":2635.5,"cliques":13035,"alcance":220520,"impressoes":579740,"_id":"base_7_64041"},{"rede":"df","unidade":"Jd. Jacira","mes":"Março","tipo":"grupovip","invest":1317.71,"cliques":6598,"alcance":180000,"impressoes":309753,"_id":"base_8_24614"},{"rede":"df","unidade":"Jd. Jacira","mes":"Fevereiro","tipo":"engajamento","invest":878.5,"engage":73843,"alcance":105084,"impressoes":183906,"_id":"base_9_82711"},{"rede":"df","unidade":"Jd. Jacira","mes":"Março","tipo":"seguidores","invest":439.14,"seguidores":2186,"alcance":34320,"impressoes":95199,"_id":"base_10_91556"},{"rede":"df","unidade":"Oficial","mes":"Março","tipo":"seguidores","invest":702.75,"seguidores":673,"alcance":52584,"impressoes":95143,"_id":"base_11_86004"},{"rede":"df","unidade":"Oficial","mes":"Abril","tipo":"seguidores","invest":691.2,"seguidores":368,"alcance":64708,"impressoes":114704,"_id":"base_12_68655"},{"rede":"nf","unidade":"Santo Eduardo","mes":"Janeiro","tipo":"whats","invest":517.68,"leads":63,"alcance":27742,"impressoes":47535,"cliques":179,"_id":"base_13_15375"},{"rede":"nf","unidade":"Santo Eduardo","mes":"Março","tipo":"whats","invest":702.92,"leads":74,"alcance":14141,"impressoes":46733,"cliques":230,"_id":"base_14_88708"},{"rede":"nf","unidade":"Parque Fernanda","mes":"Janeiro","tipo":"whats","invest":528.99,"leads":77,"alcance":29887,"impressoes":49643,"cliques":185,"_id":"base_15_92120"},{"rede":"nf","unidade":"Parque Fernanda","mes":"Março","tipo":"whats","invest":702.85,"leads":75,"alcance":15541,"impressoes":44704,"cliques":195,"_id":"base_16_49513"},{"rede":"nf","unidade":"Umarizal","mes":"Janeiro","tipo":"whats","invest":504.39,"leads":56,"alcance":23252,"impressoes":39931,"cliques":150,"_id":"base_17_43567"},{"rede":"nf","unidade":"Umarizal","mes":"Março","tipo":"whats","invest":702.82,"leads":84,"alcance":15834,"impressoes":46752,"cliques":207,"_id":"base_18_99900"},{"rede":"nf","unidade":"Pq. Res. Cocaia","mes":"Janeiro","tipo":"whats","invest":478.69,"leads":189,"alcance":22152,"impressoes":53045,"cliques":344,"_id":"base_19_57112"},{"rede":"nf","unidade":"Pq. Res. Cocaia","mes":"Março","tipo":"whats","invest":703.58,"leads":266,"alcance":26531,"impressoes":75381,"cliques":531,"_id":"base_20_74174"},{"rede":"nf","unidade":"Santo Antônio","mes":"Janeiro","tipo":"whats","invest":533.18,"leads":40,"alcance":20497,"impressoes":42844,"cliques":140,"_id":"base_21_62029"},{"rede":"nf","unidade":"Santo Antônio","mes":"Março","tipo":"whats","invest":703.03,"leads":101,"alcance":16747,"impressoes":53375,"cliques":264,"_id":"base_22_63432"},{"rede":"nf","unidade":"Indiana","mes":"Janeiro","tipo":"whats","invest":496.53,"leads":39,"alcance":20300,"impressoes":37831,"cliques":128,"_id":"base_23_53173"},{"rede":"nf","unidade":"Indiana","mes":"Março","tipo":"whats","invest":703.21,"leads":69,"alcance":12288,"impressoes":43938,"cliques":206,"_id":"base_24_56782"},{"rede":"nf","unidade":"Heliópolis","mes":"Janeiro","tipo":"whats","invest":471.89,"leads":127,"alcance":16201,"impressoes":39457,"cliques":250,"_id":"base_25_94083"},{"rede":"nf","unidade":"Heliópolis","mes":"Março","tipo":"whats","invest":703.23,"leads":178,"alcance":16059,"impressoes":54656,"cliques":326,"_id":"base_26_85583"},{"rede":"nf","unidade":"Pq. Independência","mes":"Janeiro","tipo":"whats","invest":523.61,"leads":63,"alcance":17625,"impressoes":39904,"cliques":174,"_id":"base_27_35091"},{"rede":"nf","unidade":"Pq. Independência","mes":"Março","tipo":"whats","invest":703.36,"leads":98,"alcance":13827,"impressoes":48599,"cliques":254,"_id":"base_28_64282"},{"rede":"nf","unidade":"Parelheiros","mes":"Janeiro","tipo":"whats","invest":508.15,"leads":117,"alcance":21216,"impressoes":52176,"cliques":240,"_id":"base_29_81260"},{"rede":"nf","unidade":"Parelheiros","mes":"Março","tipo":"whats","invest":703.5,"leads":107,"alcance":16018,"impressoes":53608,"cliques":223,"_id":"base_30_87339"},{"rede":"nf","unidade":"Macedônia","mes":"Janeiro","tipo":"whats","invest":523.02,"leads":54,"alcance":24104,"impressoes":41155,"cliques":148,"_id":"base_31_53664"},{"rede":"nf","unidade":"Macedônia","mes":"Março","tipo":"whats","invest":702.83,"leads":116,"alcance":16635,"impressoes":40235,"cliques":237,"_id":"base_32_50627"},{"rede":"df","unidade":"Paraisópolis","mes":"Maio","tipo":"engajamento","invest":170.48,"leads":0,"alcance":21197,"impressoes":23427,"cliques":50,"seguidores":0,"engage":9253,"_id":"base_maio_0"},{"rede":"df","unidade":"Paraisópolis","mes":"Maio","tipo":"seguidores","invest":160.27,"leads":0,"alcance":14759,"impressoes":27305,"cliques":664,"seguidores":1203,"engage":0,"_id":"base_maio_1"},{"rede":"df","unidade":"Paraisópolis","mes":"Maio","tipo":"grupovip","invest":797.46,"leads":0,"alcance":89806,"impressoes":139377,"cliques":5890,"seguidores":0,"engage":0,"_id":"base_maio_2"},{"rede":"df","unidade":"Oficial","mes":"Maio","tipo":"seguidores","invest":489.74,"leads":0,"alcance":37967,"impressoes":67934,"cliques":2415,"seguidores":579,"engage":0,"_id":"base_maio_3"},{"_id":"base_maio_2","_deleted":true,"rede":"","unidade":"","mes":"","tipo":"","invest":0},{"rede":"df","unidade":"Oficial","mes":"Maio","tipo":"engajamento","invest":1107.98,"leads":0,"alcance":304204,"impressoes":323135,"cliques":0,"seguidores":0,"gvip":0,"engage":203829},{"rede":"df","unidade":"Campo Limpo","mes":"Junho","tipo":"whats","invest":318.1,"leads":43,"alcance":3687,"impressoes":15010,"cliques":63,"seguidores":0,"gvip":0,"engage":0},{"rede":"df","unidade":"Jd. Jacira","mes":"Junho","tipo":"whats","invest":308.74,"leads":53,"alcance":3976,"impressoes":20229,"cliques":84,"seguidores":0,"gvip":0,"engage":0},{"rede":"df","unidade":"Paraisópolis","mes":"Junho","tipo":"engajamento","invest":359.9,"leads":0,"alcance":55302,"impressoes":65239,"cliques":184,"seguidores":0,"gvip":0,"engage":28672},{"rede":"df","unidade":"Oficial","mes":"Junho","tipo":"seguidores","invest":425.69,"leads":0,"alcance":38126,"impressoes":62994,"cliques":1145,"seguidores":804,"gvip":0,"engage":0},{"rede":"df","unidade":"Oficial","mes":"Junho","tipo":"engajamento","invest":435.11,"leads":0,"alcance":115647,"impressoes":121368,"cliques":2,"seguidores":0,"gvip":0,"engage":69166},{"rede":"df","unidade":"Paraisópolis","mes":"Junho","tipo":"seguidores","invest":341.69,"leads":0,"alcance":39451,"impressoes":67857,"cliques":929,"seguidores":726,"gvip":0,"engage":0}];
+
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+// ── APPS SCRIPT CONFIG ──
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyydhzWvZckgsfRN8BPVh43NWtC9GsJx0Ai6YVBH0sXrgFpCT_ov14WxG0Ewv5uW2FU/exec';
+
+// Cache local (substitui localStorage)
+let _userEntries = [];
+let _salt = null;
+let _sessionToken = null;
+
+const getAllData = () => {
+  const user = _userEntries;
+  const deleted = new Set(user.filter(u=>u._deleted).map(u=>u._id));
+  const overrides = new Set(user.filter(u=>u._overridesStatic).map(u=>u._id));
+  // STATIC_DATA filtrando os deletados e os que têm override
+  const base = STATIC_DATA.filter(d => !deleted.has(d._id) && !overrides.has(d._id));
+  // _userEntries sem os _deleted
+  const manual = user.filter(u=>!u._deleted);
+  return [...base, ...manual];
+};
+const getUserData = () => _userEntries;
+
+// Hash SHA-256 (a senha real nunca é enviada nem armazenada em texto puro)
+async function sha256Hex(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// Salva via fetch (POST) — exige token de sessão válido (emitido após login com hash correto)
+const saveData = arr => {
+  _userEntries = arr;
+  updateLastUpdate();
+  _cloudSave('set_entries', {entries: arr});
+  renderAll();
+};
+
+async function _cloudSave(action, extra) {
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('COLE_AQUI') !== -1) return {ok:false};
+  try{
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action, token:_sessionToken, ...extra})
+    });
+    const json = await resp.json();
+    if(!json.ok && /ess/i.test(json.error||'')){
+      alert('Sua sessão expirou. Faça login novamente para salvar as alterações.');
+      goPage('geral');
+    }
+    return json;
+  } catch(err){
+    console.error('Erro ao salvar na nuvem:', err);
+    return {ok:false, error:String(err)};
+  }
+}
+
+// Carrega entradas (público) + salt (público, só usado pra hash da senha) via JSONP
+function loadFromCloud(onDone) {
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('COLE_AQUI') !== -1) { if(onDone) onDone(); return; }
+  window._acCbEntries = function(json) {
+    if(json && json.entries) { _userEntries = json.entries; }
+    const s = document.getElementById('_acScript'); if(s) s.remove();
+    loadSalt(onDone);
+  };
+  const s = document.createElement('script'); s.id='_acScript';
+  s.src = APPS_SCRIPT_URL+'?action=get_entries&callback=_acCbEntries&t='+Date.now();
+  document.head.appendChild(s);
+}
+
+// Carrega o salt via fetch (mais confiável que script-tag/JSONP, que pode ser
+// bloqueado por extensões do navegador). Tenta algumas vezes antes de desistir.
+async function loadSalt(onDone, tentativa){
+  tentativa = tentativa || 1;
+  try{
+    const resp = await fetch(APPS_SCRIPT_URL+'?action=get_salt&t='+Date.now());
+    const json = await resp.json();
+    if(json && json.salt) _salt = json.salt;
+  } catch(err){
+    console.error('Falha ao carregar salt (tentativa '+tentativa+'):', err);
+    if(tentativa < 3){
+      setTimeout(()=>loadSalt(onDone, tentativa+1), 1500);
+      return;
+    }
+  }
+  if(onDone) onDone();
+}
+
+// Polling a cada 30s
+setInterval(() => {
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('COLE_AQUI') !== -1) return;
+  window._acCbEntries = function(json) {
+    if(json && json.entries) { _userEntries = json.entries; renderAll(); }
+    const s = document.getElementById('_acScript'); if(s) s.remove();
+  };
+  const s = document.createElement('script'); s.id='_acScript';
+  s.src = APPS_SCRIPT_URL+'?action=get_entries&callback=_acCbEntries&t='+Date.now();
+  document.head.appendChild(s);
+}, 30000);
+
+// ── INICIALIZAÇÃO AUTOMÁTICA (sem login) ──
+// Usa window.onload para garantir que todas as funções estão definidas
+window.onload = function() {
+  goPage('geral'); // garante a visão Geral mesmo se a nuvem demorar ou falhar
+  updateLastUpdate();
+  updateUnidades();
+  loadFromCloud(() => { renderAll(); goPage('geral'); });
+};
+const fmt  = v => (v==null||isNaN(v)) ? '—' : 'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN = v => v==null ? '—' : Number(v).toLocaleString('pt-BR');
+const cplCls = c => c==null?'': c<5?'good': c<9?'warn':'bad';
+function updateLastUpdate(){ document.getElementById('lastUpdate').textContent=new Date().toLocaleDateString('pt-BR'); }
+
+// ════════════════════════════════════════════
+//  LOGIN / NAV
+// ════════════════════════════════════════════
+// Abre o modal de login do admin
+function abrirAdmin(){
+  const modal=document.getElementById('adminLoginModal');
+  modal.style.display='flex';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').textContent='';
+  setTimeout(()=>document.getElementById('loginPass').focus(),100);
+}
+function fecharModalAdmin(){
+  document.getElementById('adminLoginModal').style.display='none';
+}
+
+async function doLogin(){
+  const p=document.getElementById('loginPass').value;
+  if(!_salt){ document.getElementById('loginErr').textContent='Ainda carregando, tente novamente em um instante.'; return; }
+  const hash = await sha256Hex(_salt + p);
+  try{
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'login', hash})
+    });
+    const json = await resp.json();
+    if(json.ok){
+      _sessionToken = json.token;
+      fecharModalAdmin();
+      goPage('admin');
+    } else {
+      document.getElementById('loginErr').textContent='Senha incorreta.';
+    }
+  } catch(err){
+    document.getElementById('loginErr').textContent='Erro de conexão. Tente novamente.';
+  }
+}
+document.addEventListener('keydown',ev=>{
+  const modal=document.getElementById('adminLoginModal');
+  if(ev.key==='Enter'&&modal.style.display==='flex') doLogin();
+  if(ev.key==='Escape'&&modal.style.display==='flex') fecharModalAdmin();
+});
+
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active','df','nf'));
+  document.getElementById('page-'+id).classList.add('active');
+  const nav=document.getElementById('nav-'+id);
+  if(nav){ nav.classList.add('active'); }
+  if(id==='df'&&nav) nav.classList.add('df');
+  if(id==='nf'&&nav) nav.classList.add('nf');
+  if(id==='admin') renderAdminList();
+}
+function renderAll(){ renderGeral(); renderDF(); renderNF(); }
+
+// ════════════════════════════════════════════
+//  GERAL
+// ════════════════════════════════════════════
+function renderGeral(){
+  const all=getAllData();
+  const df=all.filter(d=>d.rede==='df');
+  const nf=all.filter(d=>d.rede==='nf');
+  const whatsDF=df.filter(d=>d.tipo==='whats');
+  const whatsNF=nf.filter(d=>d.tipo==='whats');
+
+  const sumI=a=>a.reduce((s,d)=>s+(d.invest||0),0);
+  const sumL=a=>a.reduce((s,d)=>s+(d.leads||0),0);
+  const sumA=a=>a.reduce((s,d)=>s+(d.alcance||0),0);
+  const sumIm=a=>a.reduce((s,d)=>s+(d.impressoes||0),0);
+
+  const dfI=sumI(df), nfI=sumI(nf);
+  const dfWI=sumI(whatsDF), nfWI=sumI(whatsNF);
+  const dfL=sumL(whatsDF), nfL=sumL(whatsNF);
+  const dfCPL=dfL>0?dfWI/dfL:0;
+  const nfCPL=nfL>0?nfWI/nfL:0;
+  const dfAlc=sumA(whatsDF), nfAlc=sumA(whatsNF);
+  const totalL=dfL+nfL;
+  const totalI=dfI+nfI;
+  const totalWI=dfWI+nfWI;
+  const totalAlc=dfAlc+nfAlc;
+  const cplBenchmark=totalL>0?totalWI/totalL:0;
+  const dfCPM=dfAlc>0?(dfWI/dfAlc*1000):0;
+  const nfCPM=nfAlc>0?(nfWI/nfAlc*1000):0;
+  const totalCPM=totalAlc>0?(totalWI/totalAlc*1000):0;
+
+  // Evolução Jan → Mar
+  const cplMes=rows=>{const l=sumL(rows);return l>0?sumI(rows)/l:null;};
+  const dfCplJan=cplMes(whatsDF.filter(d=>d.mes==='Janeiro'));
+  const dfCplMar=cplMes(whatsDF.filter(d=>d.mes==='Março'));
+  const nfCplJan=cplMes(whatsNF.filter(d=>d.mes==='Janeiro'));
+  const nfCplMar=cplMes(whatsNF.filter(d=>d.mes==='Março'));
+
+  // ── NET CARDS ──
+  // SVG logos inline baseadas na identidade visual de cada rede
+  const logoDF=`<svg width="60" height="18" viewBox="0 0 96 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <text x="0" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="18" fill="#F97316" letter-spacing="-1">D.</text>
+    <text x="18" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="18" fill="#e8e8f0">Fine</text>
+    <text x="57" y="20" font-family="Arial Black,sans-serif" font-weight="400" font-size="18" fill="#ffffff">fit</text>
+  </svg>`;
+
+  const logoNF=`<svg width="60" height="18" viewBox="0 0 110 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <text x="0" y="20" font-family="Arial Black,sans-serif" font-weight="900" font-size="17" fill="#e8e8f0" font-style="italic">nova</text>
+    <rect x="52" y="2" width="40" height="22" rx="11" fill="#F5A623"/>
+    <text x="57" y="19" font-family="Arial Black,sans-serif" font-weight="900" font-size="15" fill="#2d1a6e" font-style="italic">fit</text>
+  </svg>`;
+
+  const mkNet=(cls,invest,leads,cpl,units)=>`
+    <div class="net-card">
+      <div class="net-card-header ${cls}">
+        <div class="net-logo-wrap ${cls}">
+          ${cls==='df'?logoDF:logoNF}
+        </div>
+        <div class="net-logo-text">
+          <div class="brand-sub" style="margin-bottom:2px;">${units} unidades ativas</div>
+        </div>
+      </div>
+      <div class="net-kpis">
+        <div class="net-kpi"><span class="net-kpi-label">Investimento Total</span><span class="net-kpi-val ${cls}">${fmt(invest)}</span></div>
+        <div class="net-kpi"><span class="net-kpi-label">Leads WhatsApp</span><span class="net-kpi-val ${cls}">${fmtN(leads)}</span></div>
+        <div class="net-kpi"><span class="net-kpi-label">CPL Médio</span><span class="net-kpi-val ${cplCls(cpl)}">${fmt(cpl)}</span></div>
+      </div>
+    </div>`;
+  document.getElementById('geralNetCards').innerHTML=mkNet('df',dfI,dfL,dfCPL,4)+mkNet('nf',nfI,nfL,nfCPL,10);
+
+  // ── COMPARATIVOS DE EFICIÊNCIA ──
+  function effDelta(old,novo){
+    if(!old||!novo) return '';
+    const pct=((novo-old)/old*100);
+    const better=pct<0;
+    return `<div class="eff-delta ${better?'better':'worse'}">${better?'↓':'↑'} ${Math.abs(pct).toFixed(1)}% vs Janeiro</div>`;
+  }
+  const dfEvoCls=dfCplMar&&dfCplJan?(dfCplMar<dfCplJan?'good':'bad'):'neutral';
+  const nfEvoCls=nfCplMar&&nfCplJan?(nfCplMar<nfCplJan?'good':'bad'):'neutral';
+
+  document.getElementById('geralEfficiency').innerHTML=`
+    <div class="eff-grid">
+      <div class="eff-card">
+        <div class="eff-label">CPL Benchmark Geral</div>
+        <div class="eff-main ${cplCls(cplBenchmark)}">${fmt(cplBenchmark)}</div>
+        <div class="eff-sub">CPL ponderado das duas redes. Referência para avaliar cada unidade.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel df">D.finefit</div><div class="eff-cval">${fmt(dfCPL)}</div></div>
+          <div class="eff-citem"><div class="eff-clabel nf">Nova Fit</div><div class="eff-cval">${fmt(nfCPL)}</div></div>
+        </div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Evolução de CPL · D.finefit</div>
+        <div class="eff-main ${dfEvoCls}">${fmt(dfCplMar)}</div>
+        <div class="eff-sub">Janeiro vs Março.${dfCplMar&&dfCplJan?' Variação de '+fmt(Math.abs(dfCplMar-dfCplJan))+' por lead.':''}</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Janeiro</div><div class="eff-cval">${fmt(dfCplJan)}</div></div>
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Março</div><div class="eff-cval">${fmt(dfCplMar)}</div></div>
+        </div>
+        ${effDelta(dfCplJan,dfCplMar)}
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Evolução de CPL · Nova Fit</div>
+        <div class="eff-main ${nfEvoCls}">${fmt(nfCplMar)}</div>
+        <div class="eff-sub">Janeiro vs Março.${nfCplMar&&nfCplJan?' Variação de '+fmt(Math.abs(nfCplMar-nfCplJan))+' por lead.':''}</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Janeiro</div><div class="eff-cval">${fmt(nfCplJan)}</div></div>
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Março</div><div class="eff-cval">${fmt(nfCplMar)}</div></div>
+        </div>
+        ${effDelta(nfCplJan,nfCplMar)}
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Custo por 1.000 Alcançados · DF</div>
+        <div class="eff-main neutral">${fmt(dfCPM)}</div>
+        <div class="eff-sub">Quanto a D.finefit paga para impactar 1.000 pessoas únicas via WhatsApp.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel df">Alcance</div><div class="eff-cval">${fmtN(dfAlc)}</div></div>
+          <div class="eff-citem"><div class="eff-clabel df">Investido</div><div class="eff-cval">${fmt(dfWI)}</div></div>
+        </div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Custo por 1.000 Alcançados · NF</div>
+        <div class="eff-main neutral">${fmt(nfCPM)}</div>
+        <div class="eff-sub">Quanto a Nova Fit paga para impactar 1.000 pessoas únicas via WhatsApp.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel nf">Alcance</div><div class="eff-cval">${fmtN(nfAlc)}</div></div>
+          <div class="eff-citem"><div class="eff-clabel nf">Investido</div><div class="eff-cval">${fmt(nfWI)}</div></div>
+        </div>
+      </div>
+      <div class="eff-card">
+        <div class="eff-label">Custo por 1.000 Alcançados · Geral</div>
+        <div class="eff-main neutral">${fmt(totalCPM)}</div>
+        <div class="eff-sub">Benchmark combinado das duas redes para eficiência de distribuição.</div>
+        <div class="eff-compare">
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Total Alcance</div><div class="eff-cval">${fmtN(totalAlc)}</div></div>
+          <div class="eff-citem"><div class="eff-clabel" style="color:var(--text-muted)">Total Invest.</div><div class="eff-cval">${fmt(totalWI)}</div></div>
+        </div>
+      </div>
+    </div>`;
+
+}
+
+// ════════════════════════════════════════════
+//  ADMIN — dropdown de unidades
+// ════════════════════════════════════════════
+function updateUnidades(){
+  const rede=document.getElementById('addRede').value;
+  const sel=document.getElementById('addUnidade');
+  // Unidades cadastradas + quaisquer inseridas manualmente
+  const extra=[...new Set(getUserData().filter(d=>d.rede===rede).map(d=>d.unidade))];
+  const all=[...new Set([...UNIDADES[rede],...extra])].sort();
+  sel.innerHTML=all.map(u=>`<option value="${u}">${u}</option>`).join('');
+}
+
+// ════════════════════════════════════════════
+//  ACCORDION POR UNIDADE
+// ════════════════════════════════════════════
+const TIPO_META = {
+  whats:      {label:'WhatsApp',   dot:'whats',      cols:['Mês','Investimento','Leads','CPL','Alcance','Impressões','Cliques']},
+  grupovip:   {label:'Grupo Vip',  dot:'grupovip',   cols:['Mês','Investimento','Membros','Cliques no Link','Alcance','Impressões','Custo/Membro']},
+  engajamento:{label:'Engajamento',dot:'engajamento', cols:['Mês','Investimento','Engajamento','Alcance','Impressões','Custo/Eng.']},
+  seguidores: {label:'Seguidores', dot:'seguidores',  cols:['Mês','Investimento','Seguidores','Alcance','Impressões','Custo/Seg.']},
+};
+
+function campRow(d, tipo, userIdx, entryId){
+  let cells=[];
+  if(tipo==='whats'){
+    const cpl=d.leads>0?d.invest/d.leads:null;
+    cells=[fmt(d.invest),fmtN(d.leads)||'—',{v:fmt(cpl),c:cplCls(cpl)},fmtN(d.alcance),fmtN(d.impressoes),fmtN(d.cliques)];
+  } else if(tipo==='grupovip'){
+    const cpm=d.gvip>0?d.invest/d.gvip:null;
+    cells=[fmt(d.invest),fmtN(d.gvip)||'—',fmtN(d.cliques),fmtN(d.alcance),fmtN(d.impressoes),{v:fmt(cpm),c:'',label:'Custo/Membro'}];
+  } else if(tipo==='engajamento'){
+    const cpe=d.engage>0?d.invest/d.engage:null;
+    cells=[fmt(d.invest),fmtN(d.engage),fmtN(d.alcance),fmtN(d.impressoes),{v:fmt(cpe),c:'',label:'Custo/Eng.'}];
+  } else {
+    const cps=d.seguidores>0?d.invest/d.seguidores:null;
+    cells=[fmt(d.invest),fmtN(d.seguidores),fmtN(d.alcance),fmtN(d.impressoes),{v:fmt(cps),c:'',label:'Custo/Seg.'}];
+  }
+  const meta=TIPO_META[tipo];
+  // Botão de excluir só aparece em entradas manuais (_userEntries)
+  const hasBtn = userIdx!=null || entryId!=null;
+  const extraCol  = hasBtn ? ' 90px' : '';
+  const actionBtns = hasBtn
+    ? `<div style="display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <button class="btn-edit-entry" data-idx="${userIdx!=null?userIdx:''}" data-eid="${entryId||''}" style="background:none;border:1px solid rgba(168,85,247,.3);color:var(--nf);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">✏️ Editar</button>
+        <button class="btn-del-entry" data-idx="${userIdx!=null?userIdx:''}" data-eid="${entryId||''}" style="background:none;border:1px solid rgba(239,68,68,.25);color:var(--red);padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;white-space:nowrap;">🗑 Excluir</button>
+      </div>`
+    : '';
+  return `<div class="camp-row" style="grid-template-columns:100px repeat(${cells.length},1fr)${extraCol};align-items:center;">
+    <div class="camp-row-cell"><div class="cr-label">Mês</div><div class="cr-month">${d.mes}</div></div>
+    ${cells.map((c,i)=>{
+      const val=typeof c==='object'?c.v:c;
+      const cls=typeof c==='object'&&c.c?(' '+c.c):'';
+      const colLabel=typeof c==='object'&&c.label?c.label:(meta.cols[i+1]||'');
+      const isCalc=colLabel==='Custo/Seg.'||colLabel==='Custo/Eng.'||colLabel==='Custo/Membro';
+      const valStyle=isCalc?'color:var(--yellow);font-weight:700;':'';
+      return `<div class="camp-row-cell"><div class="cr-label">${colLabel}</div><div class="cr-val${cls}" style="${valStyle}">${val}</div></div>`;
+    }).join('')}
+    ${hasBtn?`<div>${actionBtns}</div>`:''}
+  </div>`;
+}
+
+function buildUnitBlocks(rede, data, accentCls){
+  const units=[...new Set(data.map(d=>d.unidade))].sort();
+  return units.map((unit,idx)=>{
+    const uData=data.filter(d=>d.unidade===unit);
+    const whats=uData.filter(d=>d.tipo==='whats');
+    const totalInvest=uData.reduce((s,d)=>s+(d.invest||0),0);
+    const totalLeads=whats.reduce((s,d)=>s+(d.leads||0),0);
+    const totalAlc=whats.reduce((s,d)=>s+(d.alcance||0),0);
+    const avgCPL=totalLeads>0?whats.reduce((s,d)=>s+(d.invest||0),0)/totalLeads:null;
+
+    const tipos=[...new Set(uData.map(d=>d.tipo))];
+    const bodyHTML=tipos.map(tipo=>{
+      const rows=uData.filter(d=>d.tipo===tipo).sort((a,b)=>MONTHS_ORDER.indexOf(a.mes)-MONTHS_ORDER.indexOf(b.mes));
+      return `<div class="camp-section">
+        <div class="camp-section-title">
+          <span class="camp-type-dot ${TIPO_META[tipo].dot}"></span> ${TIPO_META[tipo].label}
+        </div>
+        ${rows.map(d=>{
+          // Mostra botões em qualquer entrada que tenha _id (manual ou base com _id)
+          let uIdx = -1;
+          if(d._id) {
+            uIdx = _userEntries.findIndex(u=>u._id===d._id);
+            // Se não está em _userEntries mas tem _id, usa índice especial
+            // para editar/excluir via _id direto
+            if(uIdx<0 && d._id) uIdx = -2; // sinaliza: tem _id mas é do STATIC
+          }
+          if(uIdx<0 && uIdx!==-2) {
+            uIdx = _userEntries.findIndex(u=>
+              u.rede===d.rede&&u.unidade===d.unidade&&u.mes===d.mes&&
+              u.tipo===d.tipo&&u.invest===d.invest);
+          }
+          const showBtn = uIdx >= 0 || d._id;
+          return campRow(d, tipo, showBtn ? (uIdx >= 0 ? uIdx : null) : null, d._id||null);
+        }).join('')}
+      </div>`;
+    }).join('');
+
+    const id=`ub_${rede}_${idx}`;
+    return `
+      <div class="unit-block">
+        <div class="unit-block-header" id="hdr_${id}" data-unitid="${id}">
+          <span class="unit-badge ${accentCls}">${rede.toUpperCase()}</span>
+          <span class="unit-name">${unit}</span>
+          <div class="unit-header-kpis">
+            <div class="uhk"><div class="uhk-label">Investimento</div><div class="uhk-val ${accentCls}">${fmt(totalInvest)}</div></div>
+            <div class="uhk"><div class="uhk-label">Leads</div><div class="uhk-val">${totalLeads>0?fmtN(totalLeads):'—'}</div></div>
+            <div class="uhk"><div class="uhk-label">CPL</div><div class="uhk-val ${cplCls(avgCPL)}">${avgCPL!=null?fmt(avgCPL):'—'}</div></div>
+            <div class="uhk"><div class="uhk-label">Alcance</div><div class="uhk-val">${totalAlc>0?fmtN(totalAlc):'—'}</div></div>
+          </div>
+          <span class="unit-chevron" id="chv_${id}">▾</span>
+        </div>
+        <div class="unit-block-body" id="bdy_${id}">${bodyHTML}</div>
+      </div>`;
+  }).join('');
+}
+
+function toggleUnit(id){
+  const hdr=document.getElementById('hdr_'+id);
+  const bdy=document.getElementById('bdy_'+id);
+  const chv=document.getElementById('chv_'+id);
+  if(!bdy) return;
+  const open=bdy.classList.toggle('open');
+  if(hdr) hdr.classList.toggle('open',open);
+  if(chv) chv.classList.toggle('open',open);
+}
+
+// Vincula eventos do acordeão diretamente após renderizar os blocos
+// Vincula botões de editar/excluir após renderizar
+function bindEntryButtons(){
+  document.querySelectorAll('.btn-edit-entry').forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      const idx=btn.getAttribute('data-idx');
+      const eid=btn.getAttribute('data-eid');
+      if(idx!=='') abrirEdit(parseInt(idx));
+      else if(eid) abrirEditById(eid);
+    };
+  });
+  document.querySelectorAll('.btn-del-entry').forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      const idx=btn.getAttribute('data-idx');
+      const eid=btn.getAttribute('data-eid');
+      if(idx!=='') deleteUserEntry(parseInt(idx));
+      else if(eid) deleteById(eid);
+    };
+  });
+}
+
+// Listener único, vinculado ao documento (delegação de eventos).
+// Funciona em qualquer bloco de unidade, mesmo os que ainda não foram
+// re-renderizados pela nuvem — não depende mais de timing de carregamento.
+function bindUnitHeaders(){ /* mantido por compatibilidade; não faz mais nada — veja listener global abaixo */ }
+document.addEventListener('click', function(e){
+  const hdr = e.target.closest('.unit-block-header');
+  if(!hdr) return;
+  if(e.target.closest('button')) return; // não abre/fecha se clicou num botão (editar/excluir)
+  const id = hdr.getAttribute('data-unitid') || hdr.id.replace('hdr_','');
+  toggleUnit(id);
+});
+
+// ════════════════════════════════════════════
+//  ANÁLISE DE DESEMPENHO DO MÊS (todas campanhas)
+// ════════════════════════════════════════════
+function buildMonthAnalysis(rede, filtAll, filtWhats, month){
+  if(filtAll.length===0){
+    return `<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">Sem dados para ${month}.</div>`;
+  }
+  const cc=rede==='df'?'df':'nf';
+
+  // Totais gerais (todas as campanhas)
+  const totalInvestGeral = filtAll.reduce((s,d)=>s+(d.invest||0),0);
+  const totalAlcGeral    = filtAll.reduce((s,d)=>s+(d.alcance||0),0);
+  const totalImprGeral   = filtAll.reduce((s,d)=>s+(d.impressoes||0),0);
+
+  // WhatsApp
+  const whatsLeads   = filtWhats.reduce((s,d)=>s+(d.leads||0),0);
+  const whatsInvest  = filtWhats.reduce((s,d)=>s+(d.invest||0),0);
+  const avgCPL       = whatsLeads>0?whatsInvest/whatsLeads:null;
+
+  // Grupo Vip
+  const gvip         = filtAll.filter(d=>d.tipo==='grupovip');
+  const gvipInvest   = gvip.reduce((s,d)=>s+(d.invest||0),0);
+  const gvipCliques  = gvip.reduce((s,d)=>s+(d.cliques||0),0);
+
+  // Seguidores
+  const segs         = filtAll.filter(d=>d.tipo==='seguidores');
+  const segsInvest   = segs.reduce((s,d)=>s+(d.invest||0),0);
+  const segsTotal    = segs.reduce((s,d)=>s+(d.seguidores||0),0);
+
+  // Engajamento
+  const eng          = filtAll.filter(d=>d.tipo==='engajamento');
+  const engInvest    = eng.reduce((s,d)=>s+(d.invest||0),0);
+  const engTotal     = eng.reduce((s,d)=>s+(d.engage||0),0);
+
+  // Melhor/pior CPL no whatsapp
+  const sorted=[...filtWhats].filter(d=>d.leads>0).sort((a,b)=>(a.invest/a.leads)-(b.invest/b.leads));
+  const best=sorted[0];
+  const worst=sorted[sorted.length-1];
+
+  // Tipos ativos no mês
+  const tipos=[...new Set(filtAll.map(d=>d.tipo))];
+  const tipoLabels={whats:'WhatsApp',grupovip:'Grupo Vip',seguidores:'Seguidores',engajamento:'Engajamento'};
+  const tiposStr=tipos.map(t=>tipoLabels[t]||t).join(', ');
+
+  return `<div class="analysis-grid">
+    <div class="analysis-card hl-${cc}">
+      <h4>💰 Investimento Total · ${month}</h4>
+      <div class="big-num" style="color:var(--${cc})">${fmt(totalInvestGeral)}</div>
+      <p>Distribuído em <strong>${tipos.length} tipo${tipos.length!==1?'s':''} de campanha</strong>: ${tiposStr}.<br>
+      Alcance combinado: <strong>${fmtN(totalAlcGeral)}</strong> · Impressões: <strong>${fmtN(totalImprGeral)}</strong></p>
+    </div>
+    <div class="analysis-card hl-good">
+      <h4>💬 WhatsApp — Conversão</h4>
+      <div class="big-num" style="color:var(--green)">${fmtN(whatsLeads)} leads</div>
+      <p>Investimento de <strong>${fmt(whatsInvest)}</strong>.<br>
+      CPL médio do período: <strong style="color:var(--${cplCls(avgCPL)||cc})">${fmt(avgCPL)}</strong>${best?`<br>Melhor unidade: <strong>${best.unidade}</strong> (${fmt(best.invest/best.leads)})`:''}</p>
+    </div>
+    ${gvip.length>0?`
+    <div class="analysis-card hl-warn">
+      <h4>⭐ Grupo Vip — Topo de Funil</h4>
+      <div class="big-num" style="color:var(--yellow)">${fmtN(gvipCliques)} cliques</div>
+      <p>Investimento de <strong>${fmt(gvipInvest)}</strong> em ${gvip.length} campanha${gvip.length!==1?'s':''} de Grupo Vip.<br>Audiência aquecida para conversão via WhatsApp.</p>
+    </div>`:''}
+    ${segs.length>0?`
+    <div class="analysis-card hl-nf" style="${rede==='df'?'border-left-color:var(--df)':''}">
+      <h4>👥 Seguidores — Crescimento</h4>
+      <div class="big-num" style="color:var(--${cc})">${fmtN(segsTotal)} seguidores</div>
+      <p>Investimento de <strong>${fmt(segsInvest)}</strong> para crescimento de base.<br>Custo por seguidor: <strong>${fmt(segsTotal>0?segsInvest/segsTotal:null)}</strong></p>
+    </div>`:''}
+    ${eng.length>0?`
+    <div class="analysis-card hl-good">
+      <h4>❤️ Engajamento</h4>
+      <div class="big-num" style="color:var(--green)">${fmtN(engTotal)}</div>
+      <p>Interações geradas com investimento de <strong>${fmt(engInvest)}</strong>.</p>
+    </div>`:''}
+    ${worst&&worst!==best?`
+    <div class="analysis-card hl-bad">
+      <h4>⚠️ Atenção — CPL mais alto</h4>
+      <div class="big-num" style="color:var(--red)">${fmt(worst.invest/worst.leads)}</div>
+      <p>Unidade <strong>${worst.unidade}</strong> — ${fmtN(worst.leads)} leads com ${fmt(worst.invest)} investido. Oportunidade de otimização de criativo/segmentação.</p>
+    </div>`:''}
+  </div>`;
+}
+
+// ════════════════════════════════════════════
+//  RANKING — BARRA HORIZONTAL (Nova Fit)
+// ════════════════════════════════════════════
+function buildRankingBars(whatsAll, rede){
+  const byUnit={};
+  whatsAll.filter(d=>d.leads>0).forEach(d=>{
+    if(!byUnit[d.unidade]) byUnit[d.unidade]={invest:0,leads:0};
+    byUnit[d.unidade].invest+=d.invest; byUnit[d.unidade].leads+=d.leads;
+  });
+  const ranked=Object.entries(byUnit)
+    .map(([u,v])=>({u,cpl:v.invest/v.leads,leads:v.leads,invest:v.invest}))
+    .sort((a,b)=>a.cpl-b.cpl);
+  if(!ranked.length) return '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">Sem dados suficientes.</div>';
+
+  // Maior CPL para escalar as barras (invertido: menor CPL = barra maior)
+  const maxCPL=Math.max(...ranked.map(r=>r.cpl));
+  const medals=['🥇','🥈','🥉'];
+  const fillClass=['gold','silver','bronze'];
+
+  return '<div class="hbar-list">'+ranked.map((r,i)=>{
+    const cc=cplCls(r.cpl);
+    // Barra invertida: 100% para o melhor (menor CPL), proporcional para os demais
+    const pct=Math.round((1-(r.cpl/maxCPL))*85+15); // mín 15% para visibilidade
+    const fc=i<3?fillClass[i]:rede;
+    const prefix=i<3?`<div class="hbar-medal">${medals[i]}</div>`:`<div class="hbar-pos">${String(i+1).padStart(2,'0')}</div>`;
+    return `<div class="hbar-item">
+      ${prefix}
+      <div class="hbar-info">
+        <div class="hbar-name">${r.u}</div>
+        <div class="hbar-meta">${fmtN(r.leads)} leads · ${fmt(r.invest)} investido</div>
+        <div class="hbar-track"><div class="hbar-fill ${fc}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="hbar-cpl ${cc}">${fmt(r.cpl)}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// ════════════════════════════════════════════
+//  RANKING CLÁSSICO (D.finefit)
+// ════════════════════════════════════════════
+function buildRanking(whatsAll, accentCls){
+  const byUnit={};
+  whatsAll.filter(d=>d.leads>0).forEach(d=>{
+    if(!byUnit[d.unidade]) byUnit[d.unidade]={invest:0,leads:0};
+    byUnit[d.unidade].invest+=d.invest; byUnit[d.unidade].leads+=d.leads;
+  });
+  const ranked=Object.entries(byUnit).map(([u,v])=>({u,cpl:v.invest/v.leads,leads:v.leads,invest:v.invest})).sort((a,b)=>a.cpl-b.cpl);
+  const medals=['🥇','🥈','🥉'];
+  if(!ranked.length) return '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">Sem dados suficientes.</div>';
+  const maxCPL=Math.max(...ranked.map(r=>r.cpl));
+  return '<div class="hbar-list">'+ranked.map((r,i)=>{
+    const cc=cplCls(r.cpl);
+    const pct=Math.round((1-(r.cpl/maxCPL))*85+15);
+    const fc=i<3?['gold','silver','bronze'][i]:'df';
+    const prefix=i<3?`<div class="hbar-medal">${medals[i]}</div>`:`<div class="hbar-pos">${String(i+1).padStart(2,'0')}</div>`;
+    return `<div class="hbar-item">
+      ${prefix}
+      <div class="hbar-info">
+        <div class="hbar-name">${r.u}</div>
+        <div class="hbar-meta">${fmtN(r.leads)} leads · ${fmt(r.invest)} investido</div>
+        <div class="hbar-track"><div class="hbar-fill ${fc}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="hbar-cpl ${cc}">${fmt(r.cpl)}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// ════════════════════════════════════════════
+//  D.FINEFIT
+// ════════════════════════════════════════════
+let dfMonth='Todos';
+function renderDF(){
+  const all=getAllData().filter(d=>d.rede==='df');
+  const whats=all.filter(d=>d.tipo==='whats');
+  const mcd=new Set(all.map(d=>d.mes));
+
+  document.getElementById('dfMonthFilter').innerHTML=['Todos',...MONTHS_ORDER].map(m=>{
+    const has=m==='Todos'||mcd.has(m);
+    return `<div class="month-chip${dfMonth===m?' active':''}${!has?' no-data':''}" ${has?`onclick="dfMonth='${m}';renderDF()"`:''} >${m}</div>`;
+  }).join('');
+
+  const filtered =dfMonth==='Todos'?all:all.filter(d=>d.mes===dfMonth);
+  const filtWhats=dfMonth==='Todos'?whats:whats.filter(d=>d.mes===dfMonth);
+
+  const inv  =filtered.reduce((s,d)=>s+(d.invest||0),0);
+  const leads=filtWhats.reduce((s,d)=>s+(d.leads||0),0);
+  const cpl  =leads>0?filtWhats.reduce((s,d)=>s+(d.invest||0),0)/leads:0;
+  const alc  =filtWhats.reduce((s,d)=>s+(d.alcance||0),0);
+
+  document.getElementById('dfKpis').innerHTML=[
+    {l:'Investimento Total',v:fmt(inv),    s:'Todas as campanhas',c:'df'},
+    {l:'Leads WhatsApp',    v:fmtN(leads), s:'Campanha de conversão',c:'df'},
+    {l:'CPL Médio',         v:fmt(cpl),    s:'WhatsApp',c:'df'},
+    {l:'Alcance Total',     v:fmtN(alc),   s:'WhatsApp',c:'df'},
+  ].map(k=>`<div class="kpi-card ${k.c}"><div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+  document.getElementById('dfUnitBlocks').innerHTML=buildUnitBlocks('df',filtered,'df');
+  bindUnitHeaders(); bindEntryButtons();
+
+  // Seção inferior: análise do mês OU ranking acumulado
+  const sec=document.getElementById('dfBottomSection');
+  if(dfMonth==='Todos'){
+    sec.innerHTML=`<div class="section-title">🏆 Ranking de CPL · WhatsApp <span class="pill">Acumulado</span></div>${buildRanking(whats,'accent-df')}`;
+  } else {
+    sec.innerHTML=`<div class="section-title">📊 Análise de Desempenho · ${dfMonth}</div>${buildMonthAnalysis('df',filtered,filtWhats,dfMonth)}`;
+  }
+}
+
+// ════════════════════════════════════════════
+//  NOVA FIT
+// ════════════════════════════════════════════
+let nfMonth='Todos';
+function renderNF(){
+  const all=getAllData().filter(d=>d.rede==='nf');
+  const whats=all.filter(d=>d.tipo==='whats');
+  const mcd=new Set(all.map(d=>d.mes));
+
+  document.getElementById('nfMonthFilter').innerHTML=['Todos',...MONTHS_ORDER].map(m=>{
+    const has=m==='Todos'||mcd.has(m);
+    return `<div class="month-chip${nfMonth===m?' active':''}${!has?' no-data':''}" ${has?`onclick="nfMonth='${m}';renderNF()"`:''} >${m}</div>`;
+  }).join('');
+
+  const filtered =nfMonth==='Todos'?all:all.filter(d=>d.mes===nfMonth);
+  const filtWhats=nfMonth==='Todos'?whats:whats.filter(d=>d.mes===nfMonth);
+
+  const inv  =filtered.reduce((s,d)=>s+(d.invest||0),0);
+  const leads=filtWhats.reduce((s,d)=>s+(d.leads||0),0);
+  const cpl  =leads>0?filtWhats.reduce((s,d)=>s+(d.invest||0),0)/leads:0;
+  const alc  =filtWhats.reduce((s,d)=>s+(d.alcance||0),0);
+
+  document.getElementById('nfKpis').innerHTML=[
+    {l:'Investimento Total',v:fmt(inv),    s:'Todas as campanhas',c:'nf'},
+    {l:'Leads WhatsApp',    v:fmtN(leads), s:'Por unidade',c:'nf'},
+    {l:'CPL Médio',         v:fmt(cpl),    s:'WhatsApp',c:'nf'},
+    {l:'Alcance Total',     v:fmtN(alc),   s:'WhatsApp',c:'nf'},
+  ].map(k=>`<div class="kpi-card ${k.c}"><div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+  document.getElementById('nfUnitBlocks').innerHTML=buildUnitBlocks('nf',filtered,'nf');
+  bindUnitHeaders(); bindEntryButtons();
+
+  const sec=document.getElementById('nfBottomSection');
+  if(nfMonth==='Todos'){
+    sec.innerHTML=`<div class="section-title">🏆 Ranking de CPL · WhatsApp <span class="pill">Acumulado</span></div>${buildRankingBars(whats,'nf')}`;
+  } else {
+    sec.innerHTML=`<div class="section-title">📊 Análise de Desempenho · ${nfMonth}</div>${buildMonthAnalysis('nf',filtered,filtWhats,nfMonth)}`;
+  }
+}
+
+// ════════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════════
+function adminTab(t){
+  document.querySelectorAll('.tabs .tab').forEach((el,i)=>el.classList.toggle('active',['add','list','config'][i]===t));
+  document.getElementById('adminTabAdd').style.display   =t==='add'   ?'':'none';
+  document.getElementById('adminTabList').style.display  =t==='list'  ?'':'none';
+  document.getElementById('adminTabConfig').style.display=t==='config'?'':'none';
+  if(t==='list') renderAdminList();
+}
+function addEntry(){
+  const rede    =document.getElementById('addRede').value;
+  const unidade =document.getElementById('addUnidade').value;
+  const mes     =document.getElementById('addMes').value;
+  const tipo    =document.getElementById('addTipo').value;
+  // Remove pontos de milhar antes de parsear (ex: "14.630" → 14630)
+  const cleanNum = s => (s||'').toString().replace(/\./g,'').replace(',','.');
+  const invest  =parseFloat(cleanNum(document.getElementById('addInvest').value))||0;
+  const leads   =parseInt(cleanNum(document.getElementById('addLeads').value))||0;
+  const alcance =parseInt(cleanNum(document.getElementById('addAlcance').value))||0;
+  const impressoes=parseInt(cleanNum(document.getElementById('addImpress').value))||0;
+  const cliques =parseInt(cleanNum(document.getElementById('addCliques').value))||0;
+  const seguidores=parseInt(cleanNum(document.getElementById('addSeg').value))||0;
+  const gvip     =parseInt(cleanNum(document.getElementById('addGvip').value))||0;
+  const engage  =parseInt(cleanNum(document.getElementById('addEngage').value))||0;
+  if(!invest){msg('addMsg','Preencha o investimento.','err');return;}
+  const ud=getUserData();
+  const _id = Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  ud.push({_id,rede,unidade,mes,tipo,invest,leads,alcance,impressoes,cliques,seguidores,gvip,engage});
+  saveData(ud); renderAll(); updateUnidades();
+  msg('addMsg',`✅ Entrada adicionada — ${rede==='df'?'D.finefit':'Nova Fit'} · ${unidade} (${mes}).`,'ok');
+}
+function clearForm(){
+  ['addInvest','addLeads','addAlcance','addImpress','addCliques','addSeg','addGvip','addEngage'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+function importJSON(){
+  try{
+    const arr=JSON.parse(document.getElementById('jsonBatch').value);
+    if(!Array.isArray(arr)) throw new Error('Deve ser um array.');
+    const ud=getUserData(); ud.push(...arr); saveData(ud); renderAll(); updateUnidades();
+    document.getElementById('jsonBatch').value='';
+    msg('jsonMsg',`✅ ${arr.length} entradas importadas.`,'ok');
+  }catch(e){msg('jsonMsg','❌ JSON inválido: '+e.message,'err');}
+}
+function renderAdminList(){
+  const ud=getUserData(); const c=document.getElementById('adminListContainer');
+  if(!ud.length){c.innerHTML='<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">Nenhuma entrada manual adicionada.</div>';return;}
+  c.innerHTML='<div class="data-entry-grid">'+ud.map((d,i)=>`
+    <div class="data-entry">
+      <span class="entry-id"><span class="unit-badge ${d.rede}">${d.rede.toUpperCase()}</span> ${d.unidade} · ${d.mes}</span>
+      <div class="entry-vals"><span>💰 ${fmt(d.invest)}</span>${d.leads?`<span>👥 ${d.leads} leads</span>`:''}</div>
+      <button class="entry-del" onclick="deleteEntry(${i})">Remover</button>
+    </div>`).join('')+'</div>';
+}
+function deleteUserEntry(idx){
+  if(!confirm('Excluir esta entrada?')) return;
+  const ud=getUserData();
+  ud.splice(idx,1);
+  saveData(ud);
+  renderAll();
+  msg('addMsg','✅ Entrada excluída.','ok');
+}
+function deleteEntry(idx){ deleteUserEntry(idx); renderAdminList(); }
+
+// Editar/Excluir entradas do STATIC_DATA via _id
+function abrirEditById(entryId){
+  // Encontra nos dados base
+  const d=getAllData().find(x=>x._id===entryId);
+  if(!d){ alert('Entrada não encontrada.'); return; }
+  // Verifica se já existe em _userEntries
+  const ud=getUserData();
+  let idx=ud.findIndex(u=>u._id===entryId);
+  if(idx<0){
+    // Copia do STATIC para _userEntries para poder editar
+    ud.push({...d, _overridesStatic:true});
+    saveData(ud);
+    idx=ud.length-1;
+  }
+  abrirEdit(idx);
+}
+
+function abrirEdit(idx){
+  const ud=getUserData();
+  const d=ud[idx];
+  if(!d){ alert('Entrada não encontrada.'); return; }
+  document.getElementById('editIdx').value=idx;
+  document.getElementById('editRede').value=d.rede||'df';
+  updateEditUnidades(d.rede||'df', d.unidade);
+  document.getElementById('editMes').value=d.mes||'Janeiro';
+  document.getElementById('editTipo').value=d.tipo||'whats';
+  document.getElementById('editInvest').value=d.invest||'';
+  document.getElementById('editLeads').value=d.leads||'';
+  document.getElementById('editAlcance').value=d.alcance||'';
+  document.getElementById('editImpress').value=d.impressoes||'';
+  document.getElementById('editCliques').value=d.cliques||'';
+  document.getElementById('editSeg').value=d.seguidores||'';
+  document.getElementById('editGvip').value=d.gvip||'';
+  document.getElementById('editEngage').value=d.engage||'';
+  document.getElementById('editModal').style.display='flex';
+}
+
+function deleteById(entryId){
+  if(!confirm('Excluir esta entrada?')) return;
+  const ud=getUserData();
+  const idx=ud.findIndex(u=>u._id===entryId);
+  if(idx>=0){ ud.splice(idx,1); saveData(ud); renderAll(); msg('addMsg','✅ Entrada excluída.','ok'); return; }
+  // Entrada está no STATIC_DATA — marca como deletada
+  ud.push({_id:entryId, _deleted:true, rede:'',unidade:'',mes:'',tipo:'',invest:0});
+  saveData(ud);
+  renderAll();
+  msg('addMsg','✅ Entrada excluída.','ok');
+}
+
+function updateEditUnidades(rede, currentVal){
+  const extra=[...new Set(getUserData().filter(d=>d.rede===rede).map(d=>d.unidade))];
+  const all=[...new Set([...UNIDADES[rede],...extra])].sort();
+  const sel=document.getElementById('editUnidade');
+  sel.innerHTML=all.map(u=>`<option value="${u}"${u===currentVal?' selected':''}>${u}</option>`).join('');
+}
+
+function fecharEdit(){
+  document.getElementById('editModal').style.display='none';
+  document.getElementById('editMsg').textContent='';
+}
+
+function salvarEdit(){
+  const idx=parseInt(document.getElementById('editIdx').value);
+  const ud=getUserData();
+  if(isNaN(idx)||!ud[idx]) return;
+  const cleanNum=s=>(s||'').toString().replace(/\./g,'').replace(',','.');
+  ud[idx]={
+    rede:     document.getElementById('editRede').value,
+    unidade:  document.getElementById('editUnidade').value,
+    mes:      document.getElementById('editMes').value,
+    tipo:     document.getElementById('editTipo').value,
+    invest:   parseFloat(cleanNum(document.getElementById('editInvest').value))||0,
+    leads:    parseInt(cleanNum(document.getElementById('editLeads').value))||0,
+    alcance:  parseInt(cleanNum(document.getElementById('editAlcance').value))||0,
+    impressoes:parseInt(cleanNum(document.getElementById('editImpress').value))||0,
+    cliques:  parseInt(cleanNum(document.getElementById('editCliques').value))||0,
+    seguidores:parseInt(cleanNum(document.getElementById('editSeg').value))||0,
+    gvip:      parseInt(cleanNum(document.getElementById('editGvip').value))||0,
+    engage:   parseInt(cleanNum(document.getElementById('editEngage').value))||0,
+  };
+  saveData(ud);
+  renderAll();
+  fecharEdit();
+  msg('addMsg','✅ Entrada atualizada com sucesso.','ok');
+}
+
+// Fecha modal de edição ao clicar fora
+document.addEventListener('click', e=>{
+  const modal=document.getElementById('editModal');
+  if(modal && e.target===modal) fecharEdit();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') fecharEdit();
+});
+function clearAll(){if(!confirm('Apagar todos os dados inseridos manualmente?'))return;saveData([]);renderAll();renderAdminList();}
+async function changePass(){
+  const old=document.getElementById('cfgOldPass').value;
+  const nw=document.getElementById('cfgNewPass').value;
+  const cf=document.getElementById('cfgConfPass').value;
+  if(!nw||nw.length<6){msg('cfgMsg','Mínimo 6 caracteres.','err');return;}
+  if(nw!==cf){msg('cfgMsg','Confirmação não coincide.','err');return;}
+
+  const oldHash = await sha256Hex(_salt + old);
+  try{
+    const loginResp = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'login', hash:oldHash})
+    });
+    const loginJson = await loginResp.json();
+    if(!loginJson.ok){ msg('cfgMsg','Senha atual incorreta.','err'); return; }
+    _sessionToken = loginJson.token;
+
+    const saveResp = await _cloudSave('set_creds', {newPass:nw});
+    if(saveResp.ok){
+      msg('cfgMsg','✅ Senha alterada.','ok');
+      ['cfgOldPass','cfgNewPass','cfgConfPass'].forEach(id=>document.getElementById(id).value='');
+    } else {
+      msg('cfgMsg','Erro ao salvar nova senha.','err');
+    }
+  } catch(err){
+    msg('cfgMsg','Erro de conexão.','err');
+  }
+}
+function exportData(){
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(getUserData(),null,2));
+  a.download='dados_academias_2026.json'; a.click();
+  msg('expMsg','✅ Exportado.','ok');
+}
+function importFile(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{try{const arr=JSON.parse(e.target.result);const ud=getUserData();ud.push(...arr);saveData(ud);renderAll();updateUnidades();msg('expMsg',`✅ ${arr.length} entradas importadas.`,'ok');}catch{msg('expMsg','❌ Arquivo inválido.','err');}};
+  r.readAsText(file);
+}
+// ════════════════════════════════════════════
+//  DOWNLOAD HTML DO PAINEL
+// ════════════════════════════════════════════
+function downloadHTML(){
+  const userData=getUserData();
+  // Mescla dados manuais no STATIC_DATA embutido, evitando duplicatas
+  const merged=[...STATIC_DATA];
+  userData.forEach(u=>{
+    const dup=merged.some(s=>s.rede===u.rede&&s.unidade===u.unidade&&s.mes===u.mes&&s.tipo===u.tipo);
+    if(!dup) merged.push(u);
+  });
+
+  // Pega o HTML atual e substitui o STATIC_DATA pelo merged
+  let html=document.documentElement.outerHTML;
+  const staticStr='const STATIC_DATA = '+JSON.stringify(merged)+';';
+  // Substitui usando o marcador fixo __STATIC_DATA_START__ e __STATIC_DATA_END__
+  html=html.replace(/const STATIC_DATA = \[[\s\S]*?\];/, staticStr);
+  // Limpa o nuvem (Apps Script) — dados já estão no STATIC_DATA
+  const tag1='scr'+'ipt'; const tag2='/scr'+'ipt';
+  const clearLS='<'+tag1+'>_userEntries = []; renderAll();<'+tag2+'>';
+  html=html.replace('</head>',clearLS+'</head>');
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='painel_academias_2026_'+new Date().toISOString().slice(0,10)+'.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  msg('dlMsg','✅ HTML baixado! Dados embutidos — pronto para deploy na Netlify.','ok');
+}
+
+// ════════════════════════════════════════════
+//  RELATÓRIO PARA CLIENTE
+// ════════════════════════════════════════════
+function gerarRelatorio(rede){
+  const mes=document.getElementById('repMes').value;
+  const all=getAllData().filter(d=>d.rede===rede);
+  const filtered=mes==='Todos'?all:all.filter(d=>d.mes===mes);
+  const whats=filtered.filter(d=>d.tipo==='whats');
+  const gvip=filtered.filter(d=>d.tipo==='grupovip');
+  const segs=filtered.filter(d=>d.tipo==='seguidores');
+  const eng=filtered.filter(d=>d.tipo==='engajamento');
+
+  const totalInvest=filtered.reduce((s,d)=>s+(d.invest||0),0);
+  const totalLeads=whats.reduce((s,d)=>s+(d.leads||0),0);
+  const totalAlc=filtered.reduce((s,d)=>s+(d.alcance||0),0);
+  const totalImpr=filtered.reduce((s,d)=>s+(d.impressoes||0),0);
+  const avgCPL=totalLeads>0?whats.reduce((s,d)=>s+(d.invest||0),0)/totalLeads:null;
+  const gvipCliques=gvip.reduce((s,d)=>s+(d.cliques||0),0);
+  const segsTotal=segs.reduce((s,d)=>s+(d.seguidores||0),0);
+  const engTotal=eng.reduce((s,d)=>s+(d.engage||0),0);
+  const activeUnits=[...new Set(whats.map(d=>d.unidade))].length;
+
+  const isDF=rede==='df';
+  const cor=isDF?'#F97316':'#A855F7';
+  const heroGrad=isDF?'linear-gradient(135deg,#7c2d00,#1a0e05)':'linear-gradient(135deg,#3b0764,#130a1f)';
+  const nome=isDF?'D.finefit':'Nova Fit';
+  const periodo=mes==='Todos'?'Janeiro \u2013 Dezembro 2026':`${mes} 2026`;
+
+  const fmtR=v=>(v==null||isNaN(v))?'\u2014':'R$\u00a0'+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtNR=v=>v==null?'\u2014':Number(v).toLocaleString('pt-BR');
+  const cplCls=cpl=>cpl==null?'':cpl<5?'good':cpl<9?'warn':'bad';
+
+  // Ranking por unidade
+  const byUnit={};
+  whats.filter(d=>d.leads>0).forEach(d=>{
+    if(!byUnit[d.unidade]) byUnit[d.unidade]={inv:0,leads:0,alc:0};
+    byUnit[d.unidade].inv+=d.invest; byUnit[d.unidade].leads+=d.leads; byUnit[d.unidade].alc+=(d.alcance||0);
+  });
+  const ranked=Object.entries(byUnit).map(([u,v])=>({u,cpl:v.inv/v.leads,...v})).sort((a,b)=>a.cpl-b.cpl);
+  const medals=['🥇','🥈','🥉'];
+
+  // Tabela WhatsApp
+  const whatsRows=whats.slice().sort((a,b)=>['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].indexOf(a.mes)-['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'].indexOf(b.mes)).map(d=>{
+    const cpl=d.leads>0?d.invest/d.leads:null;
+    return `<tr><td class="td-name">${d.unidade}</td><td>${d.mes}</td><td style="text-align:right">${fmtR(d.invest)}</td><td style="text-align:right">${fmtNR(d.leads)||'\u2014'}</td><td class="${cplCls(cpl)}" style="text-align:right">${fmtR(cpl)}</td><td style="text-align:right">${fmtNR(d.alcance)}</td><td style="text-align:right">${fmtNR(d.impressoes)}</td><td style="text-align:right">${fmtNR(d.cliques)}</td></tr>`;
+  }).join('');
+
+  // Outras campanhas
+  function otherTable(rows,tipo){
+    if(!rows.length) return '';
+    const cfg={
+      grupovip:  {icon:'⭐',label:'Grupo Vip',  color:'#F59E0B',bg:'#fffbeb',border:'#fde68a',cols:['Unidade','Mês','Investimento','Cliques no Link','Alcance','Impressões'],row:d=>`<td class="td-name">${d.unidade}</td><td>${d.mes}</td><td style="text-align:right">${fmtR(d.invest)}</td><td style="text-align:right">${fmtNR(d.cliques)}</td><td style="text-align:right">${fmtNR(d.alcance)}</td><td style="text-align:right">${fmtNR(d.impressoes)}</td>`},
+      seguidores:{icon:'👥',label:'Seguidores', color:'#3B82F6',bg:'#eff6ff',border:'#bfdbfe',cols:['Unidade','Mês','Investimento','Seguidores','Alcance','Impressões'],row:d=>`<td class="td-name">${d.unidade}</td><td>${d.mes}</td><td style="text-align:right">${fmtR(d.invest)}</td><td style="text-align:right">${fmtNR(d.seguidores)}</td><td style="text-align:right">${fmtNR(d.alcance)}</td><td style="text-align:right">${fmtNR(d.impressoes)}</td>`},
+      engajamento:{icon:'❤️',label:'Engajamento',color:'#EC4899',bg:'#fdf2f8',border:'#f9a8d4',cols:['Unidade','Mês','Investimento','Engajamento','Alcance','Impressões'],row:d=>`<td class="td-name">${d.unidade}</td><td>${d.mes}</td><td style="text-align:right">${fmtR(d.invest)}</td><td style="text-align:right">${fmtNR(d.engage)}</td><td style="text-align:right">${fmtNR(d.alcance)}</td><td style="text-align:right">${fmtNR(d.impressoes)}</td>`},
+    }[tipo];
+    const heads=cfg.cols.map((h,i)=>`<th style="${i>1?'text-align:right':''}">${h}</th>`).join('');
+    const trs=rows.map(d=>`<tr>${cfg.row(d)}</tr>`).join('');
+    return `<div class="section-title" style="color:${cfg.color}">${cfg.icon} ${cfg.label}</div><hr class="hr">
+    <div class="card2"><table><thead><tr style="border-top:3px solid ${cfg.color}">${heads}</tr></thead><tbody>${trs}</tbody></table></div>`;
+  }
+
+  const html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1">'
+    +'<title>Relat\u00f3rio '+nome+' \u00b7 '+periodo+'</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">'
+    +'<style>'
+    +'*{margin:0;padding:0;box-sizing:border-box;}'
+    +'body{background:#f4f4f8;color:#1a1a2e;font-family:"DM Sans",sans-serif;}'
+    +'.hero{background:'+heroGrad+';padding:40px 52px 32px;}'
+    +'.hero-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}'
+    +'.hero-badge{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:'+cor+';margin-right:14px;flex-shrink:0;}'
+    +'.hero-title{font-size:24px;font-weight:800;color:'+cor+';}'
+    +'.hero-sub{font-size:12px;color:rgba(255,255,255,0.45);margin-top:2px;}'
+    +'.period-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:right;}'
+    +'.period-val{font-size:17px;font-weight:700;color:#fff;text-align:right;margin-top:3px;}'
+    +'.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}'
+    +'.kpi-box{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:16px;}'
+    +'.kpi-box.highlight{border-top:2px solid '+cor+';}'
+    +'.kpi-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:7px;}'
+    +'.kpi-val{font-size:20px;font-weight:800;font-family:"DM Mono",monospace;line-height:1;color:#fff;}'
+    +'.kpi-val.acc{color:'+cor+';}'
+    +'.kpi-val.good{color:#4ade80;} .kpi-val.warn{color:#fbbf24;} .kpi-val.bad{color:#f87171;}'
+    +'.kpi-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:5px;}'
+    +'.body{max-width:860px;margin:0 auto;padding:32px 52px 44px;}'
+    +'.info-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}'
+    +'.info-card{background:#fff;border:1px solid #e0e0ec;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;}'
+    +'.info-icon{font-size:24px;}'
+    +'.info-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#aaa;margin-bottom:4px;}'
+    +'.info-val{font-size:20px;font-weight:700;font-family:"DM Mono",monospace;color:#1a1a2e;}'
+    +'.section-title{font-size:12px;font-weight:700;color:#1a1a2e;margin:22px 0 8px;display:flex;align-items:center;gap:6px;}'
+    +'.hr{border:none;border-top:1px solid #e0e0ec;margin-bottom:10px;}'
+    +'.card2{background:#fff;border:1px solid #e0e0ec;border-radius:10px;overflow:hidden;margin-bottom:4px;}'
+    +'table{width:100%;border-collapse:collapse;font-size:12px;}'
+    +'th{background:#f5f5fb;padding:8px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#999;border-bottom:1px solid #e8e8f4;}'
+    +'td{padding:9px 12px;border-bottom:1px solid #f0f0f8;color:#2a2a3e;}'
+    +'tr:last-child td{border-bottom:none;}'
+    +'.td-name{font-weight:600;color:#1a1a2e;}'
+    +'.good{color:#16a34a;font-weight:700;} .warn{color:#b45309;font-weight:700;} .bad{color:#dc2626;font-weight:700;}'
+    +'.rank-item{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #f0f0f8;}'
+    +'.rank-item:last-child{border-bottom:none;}'
+    +'.rank-pos{font-size:15px;width:28px;text-align:center;}'
+    +'.rank-name{flex:1;font-weight:600;font-size:13px;color:#1a1a2e;}'
+    +'.rank-meta{font-size:11px;color:#999;}'
+    +'.rank-cpl{font-size:15px;font-weight:700;font-family:"DM Mono",monospace;}'
+    +'.footer{border-top:1px solid #e0e0ec;padding-top:14px;display:flex;justify-content:space-between;align-items:center;margin-top:20px;}'
+    +'.footer-l{font-size:11px;color:#bbb;}'
+    +'.footer-r{font-size:11px;font-weight:700;color:'+cor+';}'
+    +'@media print{body{background:#f4f4f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}@page{margin:10mm 14mm;size:A4;}}'
+    +'</style></head><body>'
+
+    // HERO
+    +'<div class="hero">'
+    +'<div class="hero-row">'
+    +'<div style="display:flex;align-items:center;">'
+    +'<div class="hero-badge">'+rede.toUpperCase()+'</div>'
+    +'<div><div class="hero-title">'+nome+'</div><div class="hero-sub">Relat\u00f3rio de Performance \u00b7 Meta Ads</div></div>'
+    +'</div>'
+    +'<div><div class="period-label">Per\u00edodo</div><div class="period-val">'+periodo+'</div></div>'
+    +'</div>'
+    // KPIs
+    +'<div class="kpi-grid">'
+    +`<div class="kpi-box"><div class="kpi-label">Investimento Total</div><div class="kpi-val acc">${fmtR(totalInvest)}</div><div class="kpi-sub">Todas as campanhas</div></div>`
+    +`<div class="kpi-box"><div class="kpi-label">Leads WhatsApp</div><div class="kpi-val acc">${fmtNR(totalLeads)}</div><div class="kpi-sub">Convers\u00e3o direta</div></div>`
+    +`<div class="kpi-box highlight"><div class="kpi-label">CPL M\u00e9dio</div><div class="kpi-val ${cplCls(avgCPL)}">${fmtR(avgCPL)}</div><div class="kpi-sub">Custo por Lead</div></div>`
+    +`<div class="kpi-box"><div class="kpi-label">Alcance Total</div><div class="kpi-val acc">${fmtNR(totalAlc)}</div><div class="kpi-sub">Todas as campanhas</div></div>`
+    +'</div></div>'
+
+    // BODY
+    +'<div class="body">'
+    +'<div class="info-row">'
+    +`<div class="info-card"><div class="info-icon">📡</div><div><div class="info-label">Impress\u00f5es Totais</div><div class="info-val">${fmtNR(totalImpr)}</div></div></div>`
+    +`<div class="info-card"><div class="info-icon">🏢</div><div><div class="info-label">Unidades Ativas</div><div class="info-val">${activeUnits}</div></div></div>`
+    +'</div>'
+
+    // Tabela WhatsApp
+    +(whatsRows?'<div class="section-title">💬 Campanhas WhatsApp \u00b7 Por Unidade</div><hr class="hr">'
+    +'<div class="card2"><table>'
+    +'<thead><tr style="border-top:3px solid '+cor+'"><th>Unidade</th><th>M\u00eas</th><th style="text-align:right">Investimento</th><th style="text-align:right">Leads</th><th style="text-align:right">CPL</th><th style="text-align:right">Alcance</th><th style="text-align:right">Impress\u00f5es</th><th style="text-align:right">Cliques</th></tr></thead>'
+    +'<tbody>'+whatsRows+'</tbody></table></div>':'')
+
+    // Outras
+    +otherTable(gvip,'grupovip')
+    +otherTable(segs,'seguidores')
+    +otherTable(eng,'engajamento')
+
+    // Ranking
+    +(ranked.length?'<div class="section-title">\uD83C\uDFC6 Ranking de CPL \u00b7 WhatsApp por Unidade</div><hr class="hr">'
+    +'<div class="card2">'
+    +ranked.map((r,i)=>`<div class="rank-item"><div class="rank-pos">${medals[i]||i+1}</div><div><div class="rank-name">${r.u}</div><div class="rank-meta">${fmtNR(r.leads)} leads \u00b7 ${fmtR(r.inv)} investido</div></div><div class="rank-cpl ${cplCls(r.cpl)}">${fmtR(r.cpl)}</div></div>`).join('')
+    +'</div>':'')
+
+    // Footer
+    +'<div class="footer">'
+    +`<div class="footer-l">Gerado em: ${new Date().toLocaleDateString('pt-BR')} \u00b7 Painel de Performance 2026</div>`
+    +`<div class="footer-r">${nome} \u00b7 Meta Ads</div>`
+    +'</div>'
+    +'</div></body></html>';
+
+  mostrarRelatorioInline(html,nome,cor);
+  msg('repMsg','Relat\u00f3rio gerado! Clique em Baixar PDF para salvar.','ok');
+}
+
+function mostrarRelatorioInline(html, nome, cor){
+  // Remove modal anterior se existir
+  const old=document.getElementById('repModal'); if(old) old.remove();
+
+  const modal=document.createElement('div');
+  modal.id='repModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px;overflow:auto;';
+
+  const box=document.createElement('div');
+  box.style.cssText='width:100%;max-width:960px;background:#111118;border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;';
+
+  // Barra de ações
+  const bar=document.createElement('div');
+  bar.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.07);background:#0e0e16;';
+  bar.innerHTML='<span style="font-size:14px;font-weight:700;color:'+cor+';">'+nome+' · Relatório</span>'
+    +'<div style="display:flex;gap:10px;">'
+    +'<button onclick="imprimirRelatorio()" style="background:'+cor+';color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;cursor:pointer;">🖨️ Baixar PDF</button>'
+    +'<button onclick="document.getElementById(\'repModal\').remove()" style="background:rgba(255,255,255,0.06);color:#aaa;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 14px;font-family:DM Sans,sans-serif;font-size:13px;cursor:pointer;">✕ Fechar</button>'
+    +'</div>';
+  box.appendChild(bar);
+
+  // iframe com o relatório
+  const iframe=document.createElement('iframe');
+  iframe.id='repIframe';
+  iframe.style.cssText='width:100%;height:80vh;border:none;';
+  iframe.srcdoc=html;
+  box.appendChild(iframe);
+
+  modal.appendChild(box);
+  document.body.appendChild(modal);
+
+  // Salva o HTML gerado para o botão de download
+  window.__lastReportHTML=html;
+  window.__lastReportNome=nome;
+}
+
+function imprimirRelatorio(){
+  const iframe=document.getElementById('repIframe');
+  if(!iframe) return;
+  const iwin=iframe.contentWindow;
+  iwin.focus();
+  iwin.print();
+}
+
+function msg(id,text,type){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;el.className='admin-msg '+type;
+  setTimeout(()=>{el.textContent='';el.className='admin-msg';},4000);
+}
+</script>
+
+
+</body></html>
